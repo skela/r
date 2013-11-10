@@ -64,6 +64,17 @@ class R(object):
         self.path_inkscape = RConfig.setup_path_to_inkscape(path_inkscape)
         self.path_convert = RConfig.setup_path_to_convert(path_convert)
 
+    def add_png_to_png(self, png_file1, png_file2, png_file_result=None):
+        result = png_file_result
+        if result is None:
+            result = png_file2
+
+        cmd = self.path_convert
+        cmd = cmd.replace("convert", "composite")
+        cmd = "%s -gravity center -compose src-over %s %s %s" % (cmd, png_file1, png_file2, result)
+        print cmd
+        os.system(cmd)
+
     def svg2png(self, width, height, png_file, svg_file, options=None):
         w = width
         h = height
@@ -78,6 +89,8 @@ class R(object):
             cmd = cmd + " " + options
         cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w + ' --export-height=' + h
         os.system(cmd)
+
+        return png_file
 
     def xcf2png(self, width, height, out_file, in_file):
         w = width
@@ -240,8 +253,7 @@ class R(object):
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
 
-    # TODO: Finish this off, plan is to generate the splash images, then add the svg_centre , centred on top of each one. Svg_centre should not be scaled, but fixed size for all.
-    def svg2_launch_image(self, svg_bg, svg_centre, destination):
+    def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination):
         icon_sizes = [
             (320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
             (320, 480, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0"}),
@@ -260,6 +272,9 @@ class R(object):
 
         os.mkdir(tmp_root_folder)
         os.mkdir(tmp_folder)
+
+        logo_img_1x = self.svg2png(svg_centred_size_1x[0], svg_centred_size_1x[1], tmp_folder + 'logo1.png', svg_centred)
+        logo_img_2x = self.svg2png(svg_centred_size_1x[0]*2, svg_centred_size_1x[1]*2, tmp_folder + 'logo2.png', svg_centred)
 
         d = {"images": [], "info": {"version": 1, "author": "xcode"}}
 
@@ -283,17 +298,22 @@ class R(object):
             if skip1x is False:
                 icon_name = "%s-%s-%s-%s-1x" % (idiom, o, e, dim_string)
                 file_name = 'launchimg_' + icon_name + '.png'
-                self.svg2png(w, h, tmp_folder + file_name, svg_bg)
+                the_img = self.svg2png(w, h, tmp_folder + file_name, svg_bg)
+                self.add_png_to_png(logo_img_1x, the_img)
                 img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "1x", "orientation": o, "extent": e}
                 img = dict(img.items() + aux.items())
                 images.append(img)
 
             icon_name = "%s-%s-%s-%s-2x" % (idiom, o, e, dim_string)
             file_name = 'launchimg_' + icon_name + '.png'
-            self.svg2png(w2, h2, tmp_folder + file_name, svg_bg)
+            the_img = self.svg2png(w2, h2, tmp_folder + file_name, svg_bg)
+            self.add_png_to_png(logo_img_2x, the_img)
             img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x", "orientation": o, "extent": e}
             img = dict(img.items() + aux.items())
             images.append(img)
+
+        os.remove(logo_img_1x)
+        os.remove(logo_img_2x)
 
         d["images"] = images
 
@@ -314,6 +334,7 @@ class R(object):
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
 
+    # Note this is not that useful, you may want to make use of the svg2launch_image function above.
     def svg2launchimage(self, launch_svg, destination):
         icon_sizes = [
             (320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
