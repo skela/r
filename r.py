@@ -407,3 +407,29 @@ class R(object):
         else:
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
+
+    def svg2android_icons(self, svg_file, resources_folder):
+        icon_sizes = [
+            (36, 36, "drawable-ldpi"),
+            (48, 48, "drawable-mdpi"),
+            (72, 72, "drawable-hdpi"),
+            (96, 96, "drawable-xhdpi"),
+            (144, 144, "drawable-xxhdpi"),
+            (192, 192, "drawable-xxxhdpi")
+        ]
+
+        tmp_root_folder = '/tmp/r_icons.droid/'
+        os.system('rm -fdr ' + tmp_root_folder)
+        os.mkdir(tmp_root_folder)
+
+        for icon_size in icon_sizes:
+            w = icon_size[0]
+            h = icon_size[1]
+            o = icon_size[2]
+            p = os.path.join(tmp_root_folder, o)
+            os.mkdir(p)
+            png_file = os.path.join(p,"ic_launcher.png")
+            self.svg2png(w, h, png_file, svg_file)
+
+        cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
+        os.system(cmd)
