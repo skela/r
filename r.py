@@ -1,4 +1,4 @@
-# Utility Class to create resource recipes for image resources in iOS Projects.
+# Utility Class to create resource recipes for image resources in iOS and Android Projects.
 #
 # svg2png - Depends on Inkscape
 # xcf2png - Depends on the command convert (imageMagick)
@@ -428,7 +428,7 @@ class R(object):
             o = icon_size[2]
             p = os.path.join(tmp_root_folder, o)
             os.mkdir(p)
-            png_file = os.path.join(p,"ic_launcher.png")
+            png_file = os.path.join(p, "ic_launcher.png")
             self.svg2png(w, h, png_file, svg_file)
 
         cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
