@@ -47,7 +47,6 @@ class PackFlight(object):
 
         build_is_ios = build_file.endswith('.ipa')
 
-        dsym_file_zip_name = None
         dsym_file_zip = None
 
         if build_is_ios:
