@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-
+import plistlib
 
 class PackIOS(object):
 
@@ -50,7 +50,29 @@ class PackIOS(object):
 
     def get_build_number(self):
         plist = self.path_to_info_plist()
-        print plist
+        k = plistlib.readPlist(plist)
+        if 'CFBundleShortVersionString' in k:
+            return k['CFBundleShortVersionString']
+        return None
+
+    def set_build_number(self, build_num):
+        plist = self.path_to_info_plist()
+        k = plistlib.readPlist(plist)
+        k['CFBundleShortVersionString'] = build_num
+        plistlib.writePlist(k, plist)
+
+    def get_version_number(self):
+        plist = self.path_to_info_plist()
+        k = plistlib.readPlist(plist)
+        if 'CFBundleVersion' in k:
+            return k['CFBundleVersion']
+        return None
+
+    def set_version_number(self, version_num):
+        plist = self.path_to_info_plist()
+        k = plistlib.readPlist(plist)
+        k['CFBundleVersion'] = version_num
+        plistlib.writePlist(k, plist)
 
     def clean(self):
         bin_folder = os.path.join(self.proj_folder, 'bin')
@@ -70,3 +92,50 @@ class PackIOS(object):
         os.system(cmd)
         if not os.path.exists(self.path_to_ipa()):
             exit("Failed to build ipa, i.e. its missing - " + self.path_to_ipa())
+
+    def update_version(self):
+        print '=>Update version information for ' + os.path.basename(self.project)
+        build_number = self.get_build_number()
+        print build_number
+        msg = "Would you like to increment the build number? y/n\n> "
+        if build_number is None:
+            msg = "Has no build number, would you like to start one? y/n\n>"
+        q = raw_input(msg)
+        if q == "y":
+            if build_number is None:
+                build_number = "1"
+            else:
+                build_number = str(int(build_number)+1)
+            self.set_build_number(build_number)
+
+        version_number = self.get_version_number()
+        print version_number
+        msg = "Would you like to change the version number? y/n\n> "
+        if version_number is None:
+            msg = "Has no version number, would you like to set one? y/n\n>"
+        q = raw_input(msg)
+        if q == "y":
+            version_number = raw_input("What to?> ")
+            self.set_version_number(version_number)
+
+    def run(self, update_versions=True, confirm_build=True):
+        self.clean()
+
+        if update_versions:
+            self.update_version()
+
+        build_number = self.get_build_number()
+        version_number = self.get_version_number()
+
+        if build_number is None:
+            build_number = "[Missing]"
+        if version_number is None:
+            version_number = "[Missing]"
+
+        if confirm_build:
+            print 'So thats version ' + version_number + " build " + build_number
+            q = raw_input("Would you like to continue? y/n\n> ")
+            if q != "y":
+                exit("Ok, not doing the build, suit yourself...")
+
+        self.build()

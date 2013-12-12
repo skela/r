@@ -144,3 +144,5 @@ class PackAndroid(object):
         self.build()
 
         self.sign()
+
+        return self.final_apk

@@ -47,12 +47,14 @@ class PackFlight(object):
 
         build_is_ios = build_file.endswith('.ipa')
 
+        dsym_file_zip_name = None
+        dsym_file_zip = None
+
         if build_is_ios:
             if PackFlightUtils.is_blank(dsym_file):
                 exit("Error! %s dSYM file doesn't exist" % dsym_file)
-
-        dsym_file_zip_name = os.path.basename(dsym_file)
-        dsym_file_zip = shutil.make_archive(dsym_file_zip_name, "zip", dsym_file)
+            dsym_file_zip_name = os.path.basename(dsym_file)
+            dsym_file_zip = shutil.make_archive(dsym_file_zip_name, "zip", dsym_file)
 
         if build_is_ios:
             if PackFlightUtils.is_blank(dsym_file_zip):
