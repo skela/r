@@ -3,6 +3,7 @@
 import os
 import plistlib
 
+
 class PackIOS(object):
 
     def __init__(self, root, proj_folder, project, solution, mdtool=None):
@@ -51,27 +52,27 @@ class PackIOS(object):
     def get_build_number(self):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
-        if 'CFBundleShortVersionString' in k:
-            return k['CFBundleShortVersionString']
+        if 'CFBundleVersion' in k:
+            return k['CFBundleVersion']
         return None
 
     def set_build_number(self, build_num):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
-        k['CFBundleShortVersionString'] = build_num
+        k['CFBundleVersion'] = build_num
         plistlib.writePlist(k, plist)
 
     def get_version_number(self):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
-        if 'CFBundleVersion' in k:
-            return k['CFBundleVersion']
+        if 'CFBundleShortVersionString' in k:
+            return k['CFBundleShortVersionString']
         return None
 
     def set_version_number(self, version_num):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
-        k['CFBundleVersion'] = version_num
+        k['CFBundleShortVersionString'] = version_num
         plistlib.writePlist(k, plist)
 
     def clean(self):
