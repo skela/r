@@ -253,17 +253,27 @@ class R(object):
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
 
-    def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination):
-        icon_sizes = [
-            (320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
-            (320, 480, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-            (320, 568, "portrait", "iphone", {"extent": "full-screen", "subtype": "retina4"}),
-            (320, 480, "portrait", "iphone", {"extent": "full-screen"}),
-            (768, 1024, "portrait", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-            (1024, 768, "landscape", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-            (768, 1004, "portrait", "ipad", {"extent": "to-status-bar"}),
-            (1024, 748, "landscape", "ipad", {"extent": "to-status-bar"})
-        ]
+    def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=True, for_ipad=True):
+
+        icon_sizes = list()
+
+        if for_iphone:
+            ics = [
+                (320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
+                (320, 480, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0"}),
+                (320, 568, "portrait", "iphone", {"extent": "full-screen", "subtype": "retina4"}),
+                (320, 480, "portrait", "iphone", {"extent": "full-screen"}),
+            ]
+            icon_sizes.extend(ics)
+
+        if for_ipad:
+            icsp = [
+                (768, 1024, "portrait", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
+                (1024, 768, "landscape", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
+                (768, 1004, "portrait", "ipad", {"extent": "to-status-bar"}),
+                (1024, 748, "landscape", "ipad", {"extent": "to-status-bar"})
+            ]
+            icon_sizes.extend(icsp)
 
         tmp_root_folder = '/tmp/r_icon.xcassets/'
         tmp_folder = tmp_root_folder + 'LaunchImage.launchimage/'
@@ -333,6 +343,12 @@ class R(object):
         else:
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
+
+    def svg2launch_image_iphone(self, svg_bg, svg_centred, svg_centred_size_1x, destination):
+        self.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=True, for_ipad=False)
+
+    def svg2launch_image_ipad(self, svg_bg, svg_centred, svg_centred_size_1x, destination):
+        self.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=False, for_ipad=True)
 
     # Note this is not that useful, you may want to make use of the svg2launch_image function above.
     def svg2launchimage(self, launch_svg, destination):
