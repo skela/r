@@ -424,7 +424,7 @@ class R(object):
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
 
-    def svg2android_icons(self, svg_file, resources_folder):
+    def svg2android_icons(self, svg_file, target):
         icon_sizes = [
             (36, 36, "drawable-ldpi"),
             (48, 48, "drawable-mdpi"),
@@ -433,6 +433,12 @@ class R(object):
             (144, 144, "drawable-xxhdpi"),
             (192, 192, "drawable-xxxhdpi")
         ]
+
+        resources_folder = target
+        icon_name = 'ic_launcher.png'
+        if target.endswith('.png'):
+            icon_name = os.path.basename(target)
+            resources_folder = resources_folder.replace(icon_name, '')
 
         tmp_root_folder = '/tmp/r_icons.droid/'
         os.system('rm -fdr ' + tmp_root_folder)
@@ -444,7 +450,7 @@ class R(object):
             o = icon_size[2]
             p = os.path.join(tmp_root_folder, o)
             os.mkdir(p)
-            png_file = os.path.join(p, "ic_launcher.png")
+            png_file = os.path.join(p, icon_name)
             self.svg2png(w, h, png_file, svg_file)
 
         cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
