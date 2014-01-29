@@ -137,6 +137,7 @@ class PackIOS(object):
             print 'So thats version ' + version_number + " build " + build_number
             q = raw_input("Would you like to continue? y/n\n> ")
             if q != "y":
-                exit("Ok, not doing the build, suit yourself...")
+                print "Ok, not doing the build, suit yourself..."
+                return
 
         self.build()

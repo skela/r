@@ -112,30 +112,39 @@ class PackAndroid(object):
             if os.path.exists(self.signed_apk):
                 os.system('rm ' + self.signed_apk)
 
-    def run(self):
-
-        self.clean()
-
-        self.final_apk = os.path.join(self.destination, "%s-" % self.apk_name)
-
+    def update_version(self):
         build_number = self.get_build_number()
         print build_number
-        q = raw_input("Would you like to increment the build number? y/n\n> ")
+        q = raw_input("Would you like to increment the build number for %s? y/n\n> " % self.apk_name)
         if q == "y":
             build_number = str(int(build_number)+1)
             self.set_build_number(build_number)
 
         version_number = self.get_version_number()
         print version_number
-        q = raw_input("Would you like to change the version number? y/n\n> ")
+        q = raw_input("Would you like to change the version number for %s? y/n\n> " % self.apk_name)
         if q == "y":
             version_number = raw_input("What to?> ")
             self.set_version_number(version_number)
 
-        print 'So thats version ' + version_number + " build " + build_number
-        q = raw_input("Would you like to continue? y/n\n> ")
-        if q != "y":
-            exit("Ok, not doing the build, suit yourself...")
+    def run(self, update_versions=True, confirm_build=True):
+
+        self.clean()
+
+        self.final_apk = os.path.join(self.destination, "%s-" % self.apk_name)
+
+        if update_versions:
+            self.update_version()
+
+        build_number = self.get_build_number()
+        version_number = self.get_version_number()
+
+        if confirm_build:
+            print 'So thats version ' + version_number + " build " + build_number
+            q = raw_input("Would you like to continue? y/n\n> ")
+            if q != "y":
+                print "Ok, not doing the build, suit yourself..."
+                return None
 
         self.final_apk = self.final_apk + build_number + '.apk'
 
