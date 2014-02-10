@@ -73,6 +73,22 @@ class PackFlight(object):
         try:
             req = requests.post(url=self.url, data=params, files=files)
             print req.text
+
+            '''
+            req text looks like this:
+            {
+            "bundle_version": "1.0.0 (1)",
+            "install_url": "someurl",
+            "config_url": "someotherurl",
+            "created_at": "2014-02-10 09:10:10",
+            "notify": false,
+            "team": "teamname",
+            "minimum_os_version": "8",
+            "release_notes": "",
+            "binary_size": 9917655
+            }
+            '''
+
         except Exception, er:
             print "Failed to upload file - %s" % er
         finally:
