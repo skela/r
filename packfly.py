@@ -50,7 +50,7 @@ class PackSlackSettings(object):
             "binary_size": 9917655
             }
         """
-        self.text = "New Build of %s (%s) uploaded to TestFlight - %s" % (self.app_name, tfd['bundle_version'], tfd['config_url'])
+        self.text = "New build of %s [ %s ] - <%s|Config> - <%s|Install>" % (self.app_name, tfd['bundle_version'], tfd['config_url'], tfd['install_url'])
 
 
 class PackFlightUtils(object):
@@ -68,11 +68,11 @@ class PackFlightUtils(object):
         headers['User-Agent'] = 'urllib2 / python'
 
         request = urllib2.Request(req_url, data, headers)
-        response = {}
+        response = None
         try:
             resp = urllib2.urlopen(request)
-            response_string = resp.read()
-            response = json.loads(response_string)
+            response = resp.read()
+            print 'Request Finished:'+response
         except Exception, er:
             response['code'] = 1
             response['msg'] = 'Request failed: ' + str(er)
@@ -137,7 +137,7 @@ class PackFlight(object):
             if self.settings.slack_settings is not None:
                 tf_d = json.loads(response_text)
                 self.settings.slack_settings.update_with_tf_results(tf_d)
-                ss = self.slack_settings
+                ss = self.settings.slack_settings
                 payload = {"channel": ss.channel, "username": ss.username, "text": ss.text, "icon_emoji": ss.icon_emoji}
                 turl = "https://%s.slack.com/services/hooks/incoming-webhook?token=%s" % (ss.team, ss.token)
                 PackFlightUtils.make_url_request(turl, payload)
