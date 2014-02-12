@@ -3,6 +3,7 @@
 import requests
 import os.path
 import shutil
+import json
 
 '''
 api_token = The API token from the testflight website.
@@ -15,12 +16,41 @@ notes = Your release notes for this build.
 
 class PackFlightSettings(object):
 
-    def __init__(self, api_token, team_token, distribution_lists=None, should_notify=False, notes=""):
+    def __init__(self, api_token, team_token, distribution_lists=None, should_notify=False, slack_settings=None, notes=""):
         self.api_token = api_token
         self.team_token = team_token
         self.distribution_lists = distribution_lists
         self.should_notify = should_notify
         self.notes = notes
+        self.slack_settings = slack_settings
+
+
+class PackSlackSettings(object):
+
+    def __init__(self, app_name, team, token, channel, username, text, icon_emoji=":ghost:"):
+        self.app_name = app_name
+        self.team = team
+        self.token = token
+        self.channel = channel
+        self.username = username
+        self.text = text
+        self.icon_emoji = icon_emoji
+
+    def update_with_tf_results(self, tfd):
+        """ tfd looks like this:
+            {
+            "bundle_version": "1.0.0 (1)",
+            "install_url": "someurl",
+            "config_url": "someotherurl",
+             "created_at": "2014-02-10 09:10:10",
+            "notify": false,
+            "team": "teamname",
+            "minimum_os_version": "8",
+            "release_notes": "",
+            "binary_size": 9917655
+            }
+        """
+        self.text = "New Build of %s (%s) uploaded to TestFlight - %s" % (self.app_name, tfd['bundle_version'], tfd['config_url'])
 
 
 class PackFlightUtils(object):
@@ -28,6 +58,26 @@ class PackFlightUtils(object):
     @staticmethod
     def is_blank(some_text):
         return some_text is None or some_text == ""
+
+    @staticmethod
+    def make_url_request(req_url, params):
+        import urllib2
+        data = json.dumps(params)
+        headers = dict()
+        headers['Content-Type'] = 'application/json; charset=utf-8;'
+        headers['User-Agent'] = 'urllib2 / python'
+
+        request = urllib2.Request(req_url, data, headers)
+        response = {}
+        try:
+            resp = urllib2.urlopen(request)
+            response_string = resp.read()
+            response = json.loads(response_string)
+        except Exception, er:
+            response['code'] = 1
+            response['msg'] = 'Request failed: ' + str(er)
+            print 'Request Failed:'+str(er)
+        return response
 
 
 class PackFlight(object):
@@ -70,25 +120,11 @@ class PackFlight(object):
         files = {'file': open(build_file, 'rb')}
         if build_is_ios and not PackFlightUtils.is_blank(dsym_file_zip):
             files['dsym'] = open(dsym_file_zip, 'rb')
+        response_text = None
         try:
             req = requests.post(url=self.url, data=params, files=files)
-            print req.text
-
-            '''
-            req text looks like this:
-            {
-            "bundle_version": "1.0.0 (1)",
-            "install_url": "someurl",
-            "config_url": "someotherurl",
-            "created_at": "2014-02-10 09:10:10",
-            "notify": false,
-            "team": "teamname",
-            "minimum_os_version": "8",
-            "release_notes": "",
-            "binary_size": 9917655
-            }
-            '''
-
+            response_text = req.text
+            print response_text
         except Exception, er:
             print "Failed to upload file - %s" % er
         finally:
@@ -96,3 +132,12 @@ class PackFlight(object):
                 if os.path.exists(dsym_file_zip):
                     #print 'Clearing away ' + dsym_file_zip
                     os.system('rm -fdr ' + dsym_file_zip)
+
+        if response_text is not None:
+            if self.settings.slack_settings is not None:
+                tf_d = json.loads(response_text)
+                self.settings.slack_settings.update_with_tf_results(tf_d)
+                ss = self.slack_settings
+                payload = {"channel": ss.channel, "username": ss.username, "text": ss.text, "icon_emoji": ss.icon_emoji}
+                turl = "https://%s.slack.com/services/hooks/incoming-webhook?token=%s" % (ss.team, ss.token)
+                PackFlightUtils.make_url_request(turl, payload)
