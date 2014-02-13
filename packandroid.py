@@ -7,12 +7,13 @@ import subprocess
 
 class PackAndroid(object):
 
-    def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None):
+    def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None, configuration='Release'):
 
         self.proj_folder = project_folder
         self.project = project
         self.input_apk = input_apk
         self.destination = os.path.expanduser(destination)
+        self.configuration = configuration
 
         self.keystore = keystore
         self.keystore_alias = keystore_alias
@@ -100,7 +101,7 @@ class PackAndroid(object):
         f.close()
 
     def build(self):
-        cmd = "xbuild %s /t:SignAndroidPackage /p:Configuration=Release" % self.project
+        cmd = "xbuild %s /t:SignAndroidPackage /p:Configuration=%s" % (self.project, self.configuration)
         os.system(cmd)
         if not os.path.exists(self.input_apk):
             exit("Failed to build raw apk, i.e. its missing - " + self.input_apk)
