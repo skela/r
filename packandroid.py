@@ -81,7 +81,7 @@ class PackAndroid(object):
     def set_build_number(self, build_num):
         doc = self.get_manifest_dictionary()
         doc['manifest']['@android:versionCode'] = build_num
-        xml = xmltodict.unparse(doc)
+        xml = xmltodict.unparse(doc, pretty=True)
         manifest = os.path.join(self.proj_folder, 'Properties/AndroidManifest.xml')
         if not os.path.exists(manifest):
             exit("Failed to locate AndroidManifest.xml - " + manifest)
@@ -92,7 +92,7 @@ class PackAndroid(object):
     def set_version_number(self, version):
         doc = self.get_manifest_dictionary()
         doc['manifest']['@android:versionName'] = version
-        xml = xmltodict.unparse(doc)
+        xml = xmltodict.unparse(doc, pretty=True)
         manifest = os.path.join(self.proj_folder, 'Properties/AndroidManifest.xml')
         if not os.path.exists(manifest):
             exit("Failed to locate AndroidManifest.xml - " + manifest)
