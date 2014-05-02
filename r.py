@@ -455,3 +455,33 @@ class R(object):
 
         cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
         os.system(cmd)
+
+
+class RDroid(object):
+
+    def __init__(self, path_droid_resources, path_inkscape=None, path_convert=None):
+        self.r = R(path_inkscape, path_convert)
+        self.path_droid_resources = path_droid_resources
+
+    def ic_menu_icon(self, svg_file, out_name=None):
+        dr = os.path.join(self.path_droid_resources, "drawable-xhdpi")
+        o_name = out_name
+        if o_name is None:
+            icon_name = os.path.basename(svg_file)
+            o_name = icon_name.replace('.svg', '.png')
+        out_path = os.path.join(dr, o_name)
+        self.r.svg2png(64, 64, out_path, svg_file)
+
+        in_path = out_path
+
+        out_path = out_path.replace(".png", "2.png")
+
+        # 333333
+        cmd = '%s "%s" gradient: +level-colors "rgb(51,51,51)",white "%s"' % (self.r.path_convert, in_path, out_path)
+        # FFFFFF
+        cmd = '%s "%s" gradient: +level-colors "rgb(255,255,255)",white "%s"' % (self.r.path_convert, in_path, out_path)
+
+        print cmd
+
+        os.system(cmd)
+
