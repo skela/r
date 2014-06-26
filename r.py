@@ -463,13 +463,18 @@ class RDroid(object):
         self.r = R(path_inkscape, path_convert)
         self.path_droid_resources = path_droid_resources
 
-    def ic_menu_icon(self, svg_file, out_name=None):
-        dr = os.path.join(self.path_droid_resources, "drawable-xhdpi")
+    @staticmethod
+    def out_path_from_out_name(path_droid_resources, svg_file, out_name=None):
+        dr = os.path.join(path_droid_resources, "drawable-xhdpi")
         o_name = out_name
         if o_name is None:
             icon_name = os.path.basename(svg_file)
             o_name = icon_name.replace('.svg', '.png')
         out_path = os.path.join(dr, o_name)
+        return out_path
+
+    def ic_menu_icon(self, svg_file, out_name=None):
+        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
         self.r.svg2png(64, 64, out_path, svg_file)
 
         in_path = out_path
@@ -486,3 +491,64 @@ class RDroid(object):
 
         cmd = 'rm "%s"' % in_path
         os.system(cmd)
+
+    def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
+        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
+        self.r.svg2png(w_1x*2, h_1x*2, out_path, svg_file)
+
+
+class RiOS(object):
+
+    def __init__(self, path_ios_resources, path_inkscape=None, path_convert=None):
+        self.r = R(path_inkscape, path_convert)
+        self.path_ios_resources = path_ios_resources
+
+    @staticmethod
+    def out_path_from_out_name(path_ios_resources, svg_file, out_name=None):
+        dr = path_ios_resources
+        o_name = out_name
+        if o_name is None:
+            icon_name = os.path.basename(svg_file)
+            o_name = icon_name.replace('.svg', '.png')
+        out_path = os.path.join(dr, o_name)
+        return out_path
+
+    def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
+        in_file = svg_file
+        out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
+        self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
+
+
+class RResources(object):
+
+    def __init__(self, path_to_source_files, path_to_destination_ios=None, path_to_destination_droid=None, path_inkscape=None, path_convert=None):
+        self.path_source_resources = path_to_source_files
+        if path_to_destination_ios is not None:
+            self.ios_resources = RiOS(path_to_destination_ios, path_inkscape, path_convert)
+        if path_to_destination_droid is not None:
+            self.droid_resources = RDroid(path_to_destination_droid, path_inkscape, path_convert)
+
+    def svg2pngs(self, w_1x, h_1x, in_name, out_name=None):
+        in_file = os.path.join(self.path_source_resources, in_name)
+        if self.ios_resources is not None:
+            self.ios_resources.svg2pngs(w_1x, h_1x, in_file, out_name)
+        if self.droid_resources is not None:
+            self.droid_resources.svg2png(w_1x, h_1x, in_file, out_name)
+
+    # Load File
+    #   w,h,svg,png
+    #
+    def load_file(self, path_to_resources_file):
+        f = open(path_to_resources_file)
+        s = f.read()
+        f.close()
+
+        l = s.split("\n")
+
+        for line in l:
+            comps = line.split(",")
+            if len(comps) >= 3:
+                if len(comps) > 3:
+                    self.svg2pngs(comps[0], comps[1], comps[2], comps[3])
+                else:
+                    self.svg2pngs(comps[0], comps[1], comps[2])
