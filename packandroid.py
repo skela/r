@@ -101,6 +101,10 @@ class PackAndroid(object):
         f.close()
 
     def build(self):
+
+        cmd_update = "xbuild %s /t:UpdateAndroidResources /p:Configuration=%s" % (self.project, self.configuration)
+        os.system(cmd_update)
+
         cmd = "xbuild %s /t:SignAndroidPackage /p:Configuration=%s" % (self.project, self.configuration)
         os.system(cmd)
         if not os.path.exists(self.input_apk):
