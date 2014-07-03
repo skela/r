@@ -457,7 +457,77 @@ class R(object):
         os.system(cmd)
 
 
-class RDroid(object):
+class RBase(object):
+
+    @staticmethod
+    def is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def components_for_line(line):
+
+        succeeded = False
+        w = None
+        h = None
+        method = "auto"
+        svg = None
+        png = None
+
+        if not line.startswith("#"):
+            comps = line.split(",")
+            if not len(comps) == 0:
+                if len(comps) >= 2:
+                    if not RBase.is_number(comps[0]):
+                        method = comps[0]
+                        comps = comps[1:len(comps)]
+                    if RBase.is_number(comps[0]):
+                        w = comps[0]
+                        comps = comps[1:len(comps)]
+                    if RBase.is_number(comps[0]):
+                        h = comps[0]
+                        comps = comps[1:len(comps)]
+                    if len(comps) > 0:
+                        svg = comps[0]
+                        if len(comps) > 0:
+                            comps = comps[1:len(comps)]
+                        succeeded = True
+                    if len(comps) > 0:
+                        png = comps[0]
+        return succeeded, method, w, h, svg, png
+
+    # Load File
+    #   path_to_resources_file = path to the file that lists resources in the following format:
+    #       w,h,svg,png
+    #       w,svg,png
+    #       w,svg
+    #       method,w,h,svg,png
+    #       method,w,svg,png
+    #   path_to_resources_folder = path to the folder containing all the input graphics
+    def run_file(self, path_to_resources_file, path_to_resources_folder):
+        f = open(path_to_resources_file)
+        s = f.read()
+        f.close()
+        l = s.split("\n")
+        for line in l:
+            (succeeded, method, w, h, svg, png) = RBase.components_for_line(line)
+            if not succeeded:
+                continue
+
+            svg = os.path.join(path_to_resources_folder, svg)
+
+            if method == "auto":
+                self.svg2pngs(w, h, svg, png)
+            elif method == "svg" or method == "inkscape":
+                self.svg2pngs(w, h, svg, png)
+            elif method == "ic_menu_icon":
+                self.ic_menu_icon(svg, png)
+
+
+class RDroid(RBase):
 
     def __init__(self, path_droid_resources, path_inkscape=None, path_convert=None):
         self.r = R(path_inkscape, path_convert)
@@ -496,8 +566,11 @@ class RDroid(object):
         out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
         self.r.svg2png(w_1x*2, h_1x*2, out_path, svg_file)
 
+    def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
+        self.svg2png(w_1x, h_1x, svg_file, out_name)
 
-class RiOS(object):
+
+class RiOS(RBase):
 
     def __init__(self, path_ios_resources, path_inkscape=None, path_convert=None):
         self.r = R(path_inkscape, path_convert)
@@ -519,9 +592,9 @@ class RiOS(object):
         self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
 
 
-class RResources(object):
+class RResources(RBase):
 
-    def __init__(self, path_to_source_files, path_to_destination_ios=None, path_to_destination_droid=None, path_inkscape=None, path_convert=None):
+    def __init__(self, path_to_source_files=None, path_to_destination_ios=None, path_to_destination_droid=None, path_inkscape=None, path_convert=None):
         self.path_source_resources = path_to_source_files
         if path_to_destination_ios is not None:
             self.ios_resources = RiOS(path_to_destination_ios, path_inkscape, path_convert)
@@ -529,26 +602,10 @@ class RResources(object):
             self.droid_resources = RDroid(path_to_destination_droid, path_inkscape, path_convert)
 
     def svg2pngs(self, w_1x, h_1x, in_name, out_name=None):
-        in_file = os.path.join(self.path_source_resources, in_name)
+        in_file = in_name
+        if not os.path.exists(in_file) and not self.path_to_source_files is None:
+            in_file = os.path.join(self.path_source_resources, in_name)
         if self.ios_resources is not None:
             self.ios_resources.svg2pngs(w_1x, h_1x, in_file, out_name)
         if self.droid_resources is not None:
             self.droid_resources.svg2png(w_1x, h_1x, in_file, out_name)
-
-    # Load File
-    #   w,h,svg,png
-    #
-    def load_file(self, path_to_resources_file):
-        f = open(path_to_resources_file)
-        s = f.read()
-        f.close()
-
-        l = s.split("\n")
-
-        for line in l:
-            comps = line.split(",")
-            if len(comps) >= 3:
-                if len(comps) > 3:
-                    self.svg2pngs(comps[0], comps[1], comps[2], comps[3])
-                else:
-                    self.svg2pngs(comps[0], comps[1], comps[2])
