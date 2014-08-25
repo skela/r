@@ -6,6 +6,17 @@
 import sys
 import os
 import json
+from decimal import Decimal
+
+
+class RUtils(object):
+
+    @staticmethod
+    def number_from_object(o):
+        num = o
+        if isinstance(o, str) or isinstance(o, unicode):
+            num = Decimal(o)
+        return num
 
 
 class RConfig(object):
@@ -145,7 +156,9 @@ class R(object):
         self.xcf2png(width1x, height1x, out_file, in_file)
         self.xcf2png(width2x, height2x, out_file2x, in_file)
 
-    def xcf2png_r(self, width1x, height1x, out_file, in_file):
+    def xcf2png_r(self, w1x, h1x, out_file, in_file):
+        width1x = RUtils.number_from_object(w1x)
+        height1x = RUtils.number_from_object(h1x)
         width2x = width1x * 2
         height2x = height1x * 2
         out_file2x = out_file.replace('.png', '@2x.png')
@@ -162,7 +175,9 @@ class R(object):
         self.svg2png(width1x, height1x, out_file, in_file)
         self.svg2png(width2x, height2x, out_file2x, in_file)
 
-    def svg2png_r(self, width1x, height1x, out_file, in_file):
+    def svg2png_r(self, w1x, h1x, out_file, in_file):
+        width1x = RUtils.number_from_object(w1x)
+        height1x = RUtils.number_from_object(h1x)
         width2x = width1x * 2
         height2x = height1x * 2
         out_file2x = out_file.replace('.png', '@2x.png')
@@ -525,6 +540,16 @@ class RBase(object):
                 self.svg2pngs(w, h, svg, png)
             elif method == "ic_menu_icon":
                 self.ic_menu_icon(svg, png)
+
+    @staticmethod
+    def create_run_file_header():
+        c = '''#  w,h,svg,png
+#  w,svg,png
+#  w,svg
+#  method,w,h,svg,png
+#  method,w,svg,png
+'''
+        return c
 
 
 class RDroid(RBase):

@@ -73,6 +73,27 @@ class Rod(object):
         project.save()
 
     @staticmethod
+    def init():
+        folder_path = os.curdir
+        if folder_path == '.':
+            folder_path = os.path.abspath(folder_path)
+
+        rod_file = os.path.join(folder_path, 'Rodfile')
+        if os.path.exists(rod_file):
+            if os.path.isfile(rod_file):
+                print '[!] Existing Rodfile found in directory'
+            else:
+                exit("Folder with the name Rodfile detected - This should be a file")
+        else:
+
+            c = RiOS.create_run_file_header()
+            f = open(rod_file, 'w')
+            f.write(c)
+            f.close()
+            #os.system('touch "%s"' % rod_file)
+            print '[*] Rodfile created successfully'
+
+    @staticmethod
     def update():
         folder_path = os.curdir
         if folder_path == '.':
