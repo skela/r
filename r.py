@@ -516,11 +516,11 @@ class RBase(object):
 
     # Load File
     #   path_to_resources_file = path to the file that lists resources in the following format:
-    #       w,h,svg,png
-    #       w,svg,png
-    #       w,svg
-    #       method,w,h,svg,png
-    #       method,w,svg,png
+    #       w,h,sfile,png
+    #       w,sfile,png
+    #       w,sfile
+    #       method,w,h,sfile,png
+    #       method,w,sfile,png
     #   path_to_resources_folder = path to the folder containing all the input graphics
     def run_file(self, path_to_resources_file, path_to_resources_folder):
         f = open(path_to_resources_file)
@@ -528,26 +528,31 @@ class RBase(object):
         f.close()
         l = s.split("\n")
         for line in l:
-            (succeeded, method, w, h, svg, png) = RBase.components_for_line(line)
+            (succeeded, method, w, h, sfile, png) = RBase.components_for_line(line)
             if not succeeded:
                 continue
 
-            svg = os.path.join(path_to_resources_folder, svg)
+            sfile = os.path.join(path_to_resources_folder, sfile)
 
             if method == "auto":
-                self.svg2pngs(w, h, svg, png)
+                if sfile.endswith('.xcf'):
+                    self.xcf2pngs(w, h, sfile, png)
+                else:
+                    self.svg2pngs(w, h, sfile, png)
             elif method == "svg" or method == "inkscape":
-                self.svg2pngs(w, h, svg, png)
+                self.svg2pngs(w, h, sfile, png)
+            elif method == "svg2png":
+                self.svg2png(w, h, sfile, png)
             elif method == "ic_menu_icon":
-                self.ic_menu_icon(svg, png)
+                self.ic_menu_icon(sfile, png)
 
     @staticmethod
     def create_run_file_header():
-        c = '''#  w,h,svg,png
-#  w,svg,png
-#  w,svg
-#  method,w,h,svg,png
-#  method,w,svg,png
+        c = '''#  w,h,sfile,png
+#  w,sfile,png
+#  w,sfile
+#  method,w,h,sfile,png
+#  method,w,sfile,png
 '''
         return c
 
@@ -594,6 +599,13 @@ class RDroid(RBase):
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.svg2png(w_1x, h_1x, svg_file, out_name)
 
+    def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
+        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, xcf_file, out_name)
+        self.r.xcf2png(w_1x*2, h_1x*2, out_path, xcf_file)
+
+    def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
+        self.xcf2png(w_1x, h_1x, svg_file, out_name)
+
 
 class RiOS(RBase):
 
@@ -602,12 +614,13 @@ class RiOS(RBase):
         self.path_ios_resources = path_ios_resources
 
     @staticmethod
-    def out_path_from_out_name(path_ios_resources, svg_file, out_name=None):
+    def out_path_from_out_name(path_ios_resources, source_file, out_name=None):
         dr = path_ios_resources
         o_name = out_name
         if o_name is None:
-            icon_name = os.path.basename(svg_file)
-            o_name = icon_name.replace('.svg', '.png')
+            icon_name = os.path.basename(source_file)
+            icon_ext = os.path.splitext(source_file)[1]
+            o_name = icon_name.replace(icon_ext, '.png')
         out_path = os.path.join(dr, o_name)
         return out_path
 
@@ -615,6 +628,21 @@ class RiOS(RBase):
         in_file = svg_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
         self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
+
+    def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
+        in_file = svg_file
+        out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
+        self.r.svg2png(w_1x, h_1x, out_file, in_file)
+
+    def xcf2pngs(self, w_1x, h_1x, xcf_file, out_name=None):
+        in_file = xcf_file
+        out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
+        self.r.xcf2pngs(w_1x, h_1x, out_file, in_file)
+
+    def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
+        in_file = xcf_file
+        out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
+        self.r.xcf2png(w_1x, h_1x, out_file, in_file)
 
 
 class RResources(RBase):
