@@ -533,6 +533,8 @@ class RBase(object):
                 continue
 
             sfile = os.path.join(path_to_resources_folder, sfile)
+            if len(os.path.splitext(sfile)[1])==0:
+                sfile = sfile + '.svg'
 
             if method == "auto":
                 if sfile.endswith('.xcf'):
