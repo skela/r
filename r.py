@@ -2,6 +2,7 @@
 #
 # svg2png - Depends on Inkscape
 # xcf2png - Depends on the command convert (imageMagick)
+# svg2pdf - Depends on svg2pdf
 
 import sys
 import os
@@ -69,11 +70,27 @@ class RConfig(object):
         return path
 
 
+    @staticmethod
+    def setup_path_to_svg2pdf(path_svg2pdf):
+        path = path_svg2pdf
+        if path_svg2pdf is None:
+            if RConfig.is_mac():
+                path = "svg2pdf"
+            if RConfig.is_linux():
+                path = "svg2pdf"
+            if RConfig.is_windows():
+                exit("Unsupported operating system, please type format c: in the command prompt")
+        else:
+            path = path_svg2pdf
+        return path
+
+
 class R(object):
 
-    def __init__(self, path_inkscape=None, path_convert=None):
+    def __init__(self, path_inkscape=None, path_convert=None, path_svg2pdf=None):
         self.path_inkscape = RConfig.setup_path_to_inkscape(path_inkscape)
         self.path_convert = RConfig.setup_path_to_convert(path_convert)
+        self.path_svg2pdf = RConfig.setup_path_to_svg2pdf(path_svg2pdf)
 
     def add_png_to_png(self, png_file1, png_file2, png_file_result=None):
         result = png_file_result
@@ -102,6 +119,11 @@ class R(object):
         os.system(cmd)
 
         return png_file
+
+    def svg2pdf(self, svg_file, pdf_file):
+        cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
+        os.system(cmd)
+        return pdf_file
 
     def xcf2png(self, width, height, out_file, in_file):
         w = width
@@ -545,6 +567,10 @@ class RBase(object):
                 self.svg2png(w, h, sfile, png)
             elif method == "ic_menu_icon":
                 self.ic_menu_icon(sfile, png)
+            elif method == 'icon' or method == 'app_icon':
+                self.icon(sfile)
+            elif method == 'pdf':
+                self.svg2pdf(sfile, png)
 
     @staticmethod
     def create_run_file_header():
@@ -606,6 +632,9 @@ class RDroid(RBase):
     def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.xcf2png(w_1x, h_1x, svg_file, out_name)
 
+    def svg2pdf(self,svg_file, out_name=None):
+        print "svg2pdf is not supported on android"
+
 
 class RiOS(RBase):
 
@@ -622,6 +651,34 @@ class RiOS(RBase):
             icon_ext = os.path.splitext(source_file)[1]
             o_name = icon_name.replace(icon_ext, '.png')
         out_path = os.path.join(dr, o_name)
+        return out_path
+
+    @staticmethod
+    def out_path_from_out_name_pdf(path_ios_resources, source_file, out_name=None):
+        dr = path_ios_resources
+        img_assets = os.path.join(dr, 'Images.xcassets')
+        if not os.path.exists(img_assets):
+            exit("Failed to locate Images.xcassets at %s" % img_assets)
+        o_name = out_name
+        if o_name is None:
+            icon_name = os.path.basename(source_file)
+            icon_ext = os.path.splitext(source_file)[1]
+            o_name = icon_name.remove(icon_ext)
+        out_path = os.path.join(img_assets, o_name + '.imageset')
+
+        if not os.path.exists(out_path):
+            os.mkdir(out_path)
+
+        d = dict()
+        d["images"] = [{"idiom": "universal", "filename": o_name + ".pdf"}]
+        d["info"] = {"version": 1, "author": "xcode"}
+        s = json.dumps(d)
+        f = open(os.path.join(out_path, "Contents.json"), 'w')
+        f.write(s)
+        f.close()
+
+        out_path = os.path.join(out_path, o_name + ".pdf")
+
         return out_path
 
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
@@ -643,6 +700,14 @@ class RiOS(RBase):
         in_file = xcf_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
         self.r.xcf2png(w_1x, h_1x, out_file, in_file)
+
+    def svg2pdf(self, svg_file, out_name=None):
+        in_file = svg_file
+        out_file = RiOS.out_path_from_out_name_pdf(self.path_ios_resources, svg_file, out_name)
+        return self.r.svg2pdf(in_file, out_file)
+
+    def icon(self, svg_file):
+        self.r.svg2appiconset(svg_file, self.path_ios_resources)
 
 
 class RResources(RBase):
