@@ -555,6 +555,8 @@ class RBase(object):
                 continue
 
             sfile = os.path.join(path_to_resources_folder, sfile)
+            if len(os.path.splitext(sfile)[1])==0:
+                sfile = sfile + '.svg'
 
             if method == "auto":
                 if sfile.endswith('.xcf'):
@@ -620,14 +622,18 @@ class RDroid(RBase):
 
     def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
         out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
-        self.r.svg2png(w_1x*2, h_1x*2, out_path, svg_file)
+        w = RUtils.number_from_object(w_1x)*2
+        h = RUtils.number_from_object(h_1x)*2
+        self.r.svg2png(w, h, out_path, svg_file)
 
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.svg2png(w_1x, h_1x, svg_file, out_name)
 
     def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
         out_path = RDroid.out_path_from_out_name(self.path_droid_resources, xcf_file, out_name)
-        self.r.xcf2png(w_1x*2, h_1x*2, out_path, xcf_file)
+        w = RUtils.number_from_object(w_1x)*2
+        h = RUtils.number_from_object(h_1x)*2
+        self.r.xcf2png(w, h, out_path, xcf_file)
 
     def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.xcf2png(w_1x, h_1x, svg_file, out_name)
