@@ -235,6 +235,7 @@ class R(object):
 
     def svg2appiconset(self, icon_svg, destination):
         icon_sizes = [(29, "iphone"), (40, "iphone"), (57, "iphone"), (60, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad")]
+        banlist3x = [(57, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad")]
 
         tmp_root_folder = '/tmp/r_icon.xcassets/'
         tmp_folder = tmp_root_folder + 'AppIcon.appiconset/'
@@ -257,6 +258,7 @@ class R(object):
             dim_string = "%dx%d" % (icon_size, icon_size)
             wh = icon_size
             wh2 = wh * 2
+            wh3 = wh * 3
 
             if not "%s-%d" % (idiom, icon_size) in ban_list:
                 file_name = "icon_%s-%s-1x.png" % (idiom, dim_string)
@@ -268,8 +270,14 @@ class R(object):
             file_name = "icon_%s-%s-2x.png" % (idiom, dim_string)
             if str(wh2) in legacy_names:
                 file_name = legacy_names[str(wh2)]
+
             self.svg2png(wh2, wh2, tmp_folder + file_name, icon_svg)
             images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x"})
+
+            file_name = "icon_%s-%s-3x.png" % (idiom, dim_string)
+            if not ics in banlist3x:
+                self.svg2png(wh3, wh3, tmp_folder + file_name, icon_svg)
+                images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "3x"})
 
         d["images"] = images
 
