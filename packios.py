@@ -62,6 +62,22 @@ class PackIOS(object):
         k['CFBundleVersion'] = build_num
         plistlib.writePlist(k, plist)
 
+    def increment_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)+1)
+        self.set_build_number(build_number)
+
+    def decrement_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)-1)
+        self.set_build_number(build_number)
+
     def get_version_number(self):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
@@ -103,11 +119,7 @@ class PackIOS(object):
             msg = "Has no build number, would you like to start one? y/n\n>"
         q = raw_input(msg)
         if q == "y":
-            if build_number is None:
-                build_number = "1"
-            else:
-                build_number = str(int(build_number)+1)
-            self.set_build_number(build_number)
+            self.increment_build_number()
 
         version_number = self.get_version_number()
         print version_number
