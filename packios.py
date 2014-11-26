@@ -27,6 +27,14 @@ class PackIOS(object):
             if not os.path.exists(self.release_notes):
                 exit("Failed to locate release notes - %s" % self.release_notes)
 
+    def get_release_notes(self):
+        if self.release_notes is None:
+            return ""
+        f = open(self.release_notes, 'r')
+        rn = f.read()
+        f.close()
+        return rn
+
     def name_of_file(self, file_type):
         files = os.listdir(self.project_bin)
         ipa_files = []
