@@ -47,6 +47,8 @@ class RConfig(object):
         if path_inkscape is None:
             if RConfig.is_mac():
                 path = "/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
+                if not os.path.exists(path):
+                    path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
                 path = "inkscape"
             if RConfig.is_windows():
@@ -563,8 +565,8 @@ class RBase(object):
                 continue
 
             sfile = os.path.join(path_to_resources_folder, sfile)
-            if len(os.path.splitext(sfile)[1])==0:
-                sfile = sfile + '.svg'
+            if len(os.path.splitext(sfile)[1]) == 0:
+                sfile += '.svg'
 
             if method == "auto":
                 if sfile.endswith('.xcf'):
@@ -655,6 +657,10 @@ class RiOS(RBase):
     def __init__(self, path_ios_resources, path_inkscape=None, path_convert=None):
         self.r = R(path_inkscape, path_convert)
         self.path_ios_resources = path_ios_resources
+        self.path_ios_assets = None
+
+    def set_ios_assets(self, path):
+        self.path_ios_assets = path
 
     @staticmethod
     def out_path_from_out_name(path_ios_resources, source_file, out_name=None):
@@ -670,9 +676,14 @@ class RiOS(RBase):
     @staticmethod
     def out_path_from_out_name_pdf(path_ios_resources, source_file, out_name=None):
         dr = path_ios_resources
-        img_assets = os.path.join(dr, 'Images.xcassets')
+        if not 'Images.xcassets' in dr:
+            img_assets = os.path.join(dr, 'Images.xcassets')
+        else:
+            img_assets = dr
         if not os.path.exists(img_assets):
             exit("Failed to locate Images.xcassets at %s" % img_assets)
+        if not os.path.exists(source_file):
+            exit("Failed to locate %s" % source_file)
         o_name = out_name
         if o_name is None:
             icon_name = os.path.basename(source_file)
@@ -716,8 +727,11 @@ class RiOS(RBase):
         self.r.xcf2png(w_1x, h_1x, out_file, in_file)
 
     def svg2pdf(self, svg_file, out_name=None):
+        output_folder = self.path_ios_resources
+        if self.path_ios_assets is not None:
+            output_folder = self.path_ios_assets
         in_file = svg_file
-        out_file = RiOS.out_path_from_out_name_pdf(self.path_ios_resources, svg_file, out_name)
+        out_file = RiOS.out_path_from_out_name_pdf(output_folder, svg_file, out_name)
         return self.r.svg2pdf(in_file, out_file)
 
     def icon(self, svg_file):
