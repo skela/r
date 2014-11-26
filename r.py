@@ -48,6 +48,8 @@ class RConfig(object):
             if RConfig.is_mac():
                 path = "/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
                 if not os.path.exists(path):
+                    path = "/opt/local/bin/inkscape"
+                if not os.path.exists(path):
                     path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
                 path = "inkscape"
