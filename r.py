@@ -113,13 +113,16 @@ class R(object):
 
         if not isinstance(width, str):
             w = str(width)
-        if not isinstance(height, str):
+        if not isinstance(height, str) and h is not None:
             h = str(height)
 
         cmd = self.path_inkscape + ' --without-gui --file="' + svg_file + '"'
         if options is not None:
             cmd = cmd + " " + options
-        cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w + ' --export-height=' + h
+        if h is None:
+            cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w
+        else:
+            cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w + ' --export-height=' + h
         os.system(cmd)
 
         return png_file
@@ -204,11 +207,23 @@ class R(object):
     def svg2png_r(self, w1x, h1x, out_file, in_file):
         width1x = RUtils.number_from_object(w1x)
         height1x = RUtils.number_from_object(h1x)
+
+        height2x = None
+        height3x = None
+
         width2x = width1x * 2
-        height2x = height1x * 2
+        if height1x is not None:
+            height2x = height1x * 2
         out_file2x = out_file.replace('.png', '@2x.png')
+
+        width3x = width1x * 3
+        if height1x is not None:
+            height3x = height1x * 3
+        out_file3x = out_file.replace('.png', '@3x.png')
+
         self.svg2png(width1x, height1x, out_file, in_file)
         self.svg2png(width2x, height2x, out_file2x, in_file)
+        self.svg2png(width3x, height3x, out_file3x, in_file)
 
     def svg2pngs(self, width1x, height1x, out_file, in_file):
         self.svg2png_r(width1x, height1x, out_file, in_file)
