@@ -6,12 +6,16 @@ import plistlib
 
 class PackIOS(object):
 
-    def __init__(self, root, proj_folder, project, solution, mdtool=None):
+    def __init__(self, root, proj_folder, project, solution, release_notes=None, mdtool=None):
         self.mdtool = mdtool
         self.proj_folder = os.path.join(root, proj_folder)
         self.project = os.path.join(root, project)
         self.solution = os.path.join(root, solution)
         self.project_bin = os.path.join(root, proj_folder, 'bin/iPhone/Ad-Hoc')
+
+        self.release_notes = release_notes
+        if release_notes is not None:
+            self.release_notes = os.path.join(root, release_notes)
 
         if self.mdtool is None:
             self.mdtool = "/Applications/Xamarin Studio.app/Contents/MacOS/mdtool"
@@ -19,7 +23,19 @@ class PackIOS(object):
         if not os.path.exists(self.mdtool):
             exit("Failed to locate mdtool - " + self.mdtool)
 
-    def name_of_file(self,file_type):
+        if self.release_notes is not None:
+            if not os.path.exists(self.release_notes):
+                exit("Failed to locate release notes - %s" % self.release_notes)
+
+    def get_release_notes(self):
+        if self.release_notes is None:
+            return ""
+        f = open(self.release_notes, 'r')
+        rn = f.read()
+        f.close()
+        return rn
+
+    def name_of_file(self, file_type):
         files = os.listdir(self.project_bin)
         ipa_files = []
         for f in files:
@@ -62,6 +78,22 @@ class PackIOS(object):
         k['CFBundleVersion'] = build_num
         plistlib.writePlist(k, plist)
 
+    def increment_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)+1)
+        self.set_build_number(build_number)
+
+    def decrement_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)-1)
+        self.set_build_number(build_number)
+
     def get_version_number(self):
         plist = self.path_to_info_plist()
         k = plistlib.readPlist(plist)
@@ -103,11 +135,7 @@ class PackIOS(object):
             msg = "Has no build number, would you like to start one? y/n\n>"
         q = raw_input(msg)
         if q == "y":
-            if build_number is None:
-                build_number = "1"
-            else:
-                build_number = str(int(build_number)+1)
-            self.set_build_number(build_number)
+            self.increment_build_number()
 
         version_number = self.get_version_number()
         print version_number
