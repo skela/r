@@ -47,7 +47,6 @@ class Rod(object):
     def locate_image_resources_output_folder(folder_path, xcode_project_path):
 
         if xcode_project_path is None:
-            print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
             return folder_path
 
         name = os.path.basename(xcode_project_path)
@@ -179,10 +178,10 @@ class Rod(object):
 
     @staticmethod
     def update():
-        (xcodeproj, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
         if input_folder is not None:
             Rod.regenerate_resources(input_folder, img_folder, assets_folder)
-        if xcodeproj is not None:
+        for xcodeproj in xcode_projects:
             Rod.update_xcode_project(xcodeproj, img_folder)
         for csproj in cs_projects:
             Rod.update_cs_project(csproj, img_folder)
@@ -204,14 +203,27 @@ class Rod(object):
         img_folder = Rod.override_rod_setting_if_exists(d, img_folder, 'OUTPUT', 'path')
         input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
 
+        xc_projects = Rod.read_projects(d, 'XCPROJ')
         cs_projects = Rod.read_projects(d, 'CSPROJ')
 
+        if xcodeproj is not None:
+            if xcodeproj not in xc_projects:
+                xc_projects.append(xcodeproj)
+
         if should_print_map:
-            print '> xcodeproj maps to %s' % xcodeproj
             print '> Image Output folder maps to %s' % img_folder
             print '> Image Assets Output folder maps to %s' % assets_folder
             print '> Res Input folder maps to %s' % input_folder
+            print ''
 
+            if len(xc_projects) > 0:
+                print '> xcodeproj maps to: '
+                for xproj in xc_projects:
+                    print '  %s' % xproj
+            else:
+                print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
+            print ''
+            
             if len(cs_projects) > 0:
                 print '> csproj maps to: '
                 for cs_proj in cs_projects:
