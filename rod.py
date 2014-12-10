@@ -223,7 +223,7 @@ class Rod(object):
             else:
                 print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
             print ''
-            
+
             if len(cs_projects) > 0:
                 print '> csproj maps to: '
                 for cs_proj in cs_projects:
