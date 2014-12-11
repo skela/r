@@ -291,7 +291,8 @@ class Rod(object):
         d = Rod.read_rod_overrides()
         img_folder = Rod.override_rod_setting_if_exists(d, img_folder, 'OUTPUT', 'path')
         input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
-
+        assets_folder = Rod.override_rod_setting_if_exists(d, assets_folder, 'XCASSETS', 'path')
+        
         xc_projects = Rod.read_projects(d, 'XCPROJ')
         cs_projects = Rod.read_projects(d, 'CSPROJ')
 
