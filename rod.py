@@ -1,9 +1,9 @@
 
 import os
 import argparse
+import xmltodict
 
 from r import RiOS
-
 
 class Rod(object):
 
