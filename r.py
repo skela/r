@@ -117,6 +117,7 @@ class R(object):
             h = str(height)
 
         cmd = self.path_inkscape + ' --without-gui --file="' + svg_file + '"'
+        cmd = cmd + " --export-background-opacity=0"
         if options is not None:
             cmd = cmd + " " + options
         if h is None:
