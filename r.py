@@ -111,10 +111,10 @@ class R(object):
         w = width
         h = height
 
-        if not isinstance(width, str):
-            w = str(width)
-        if not isinstance(height, str):
-            h = str(height)
+        w = RUtils.number_from_object(width)
+        h = RUtils.number_from_object(height)
+        w = str(w)
+        h = str(h)
 
         cmd = self.path_inkscape + ' --without-gui --file="' + svg_file + '"'
         if options is not None:
@@ -566,9 +566,10 @@ class RBase(object):
             if not succeeded:
                 continue
 
-            sfile = os.path.join(path_to_resources_folder, sfile)
-            if len(os.path.splitext(sfile)[1]) == 0:
-                sfile += '.svg'
+            if method is not 'launch_image':
+                sfile = os.path.join(path_to_resources_folder, sfile)
+                if len(os.path.splitext(sfile)[1]) == 0:
+                    sfile += '.svg'
 
             if method == "auto":
                 if sfile.endswith('.xcf'):
@@ -583,6 +584,17 @@ class RBase(object):
                 self.ic_menu_icon(sfile, png)
             elif method == 'icon' or method == 'app_icon':
                 self.icon(sfile)
+            elif method == 'launch_image':
+                sfiles = sfile.split(':')
+                svg_bg = sfiles[0]
+                svg_centred = sfiles[1]
+                svg_bg = os.path.join(path_to_resources_folder, svg_bg)
+                if len(os.path.splitext(svg_bg)[1]) == 0:
+                    svg_bg += '.svg'
+                svg_centred = os.path.join(path_to_resources_folder, svg_centred)
+                if len(os.path.splitext(svg_centred)[1]) == 0:
+                    svg_centred += '.svg'
+                self.launch_image(svg_bg, svg_centred, w, h)
             elif method == 'pdf':
                 self.svg2pdf(sfile, png)
 
@@ -739,6 +751,11 @@ class RiOS(RBase):
     def icon(self, svg_file):
         self.r.svg2appiconset(svg_file, self.path_ios_resources)
 
+    def launch_image(self, svg_bg, svg_centred, w, h):
+        width = RUtils.number_from_object(w)
+        height = RUtils.number_from_object(h)
+        svg_centred_size_1x = [width, height]
+        self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
 
 class RResources(RBase):
 
