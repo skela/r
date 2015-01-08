@@ -1,6 +1,7 @@
 
 import os
 import argparse
+import xmltodict
 
 from r import RiOS
 
@@ -29,6 +30,8 @@ class Rod(object):
         if os.path.exists(res):
             if os.path.isdir(res):
                 return res
+        if xcode_project_path is None:
+            return None
         name = os.path.basename(xcode_project_path)
         name = name.replace(".xcodeproj", "")
         res = os.path.join(folder_full_path, name, 'Images.xcassets')
@@ -42,7 +45,11 @@ class Rod(object):
         return None
 
     @staticmethod
-    def locate_image_resources_folder(xcode_project_path):
+    def locate_image_resources_output_folder(folder_path, xcode_project_path):
+
+        if xcode_project_path is None:
+            return folder_path
+
         name = os.path.basename(xcode_project_path)
         name = name.replace(".xcodeproj", "")
         root = os.path.split(xcode_project_path)[0]
@@ -100,6 +107,144 @@ class Rod(object):
         project.save()
 
     @staticmethod
+    def update_cs_project(cs_proj, img_folder):
+
+        def winshit_to_posix(p):
+            return p.replace('\\', '/')
+
+        def posix_to_winshit(p):
+            return p.replace('/', '\\')
+
+        def remove_winshit(p):
+            return p.replace("%40", "@")
+
+        def add_winshit(p):
+            return p.replace("@", "%40")
+
+        cs_folder = os.path.join(os.path.dirname(cs_proj))
+        rel_path = os.path.relpath(img_folder, cs_folder)  # '../iOSResources/Resources'
+
+        f = open(cs_proj)
+        dom = xmltodict.parse(f, strip_whitespace=True)
+        f.close()
+
+        item_groups = dom['Project']['ItemGroup']
+
+        folder_group = None
+        bundle_resource_group = None
+        for node in item_groups:
+            if 'Folder' in node:
+                folder_group = node["Folder"]
+            if 'BundleResource' in node:
+                bundle_resource_group = node["BundleResource"]
+
+        # Check for folder_group folder called Resources
+        if folder_group is None:
+            exit("Folder group not found - You need a Folder in the project tree called Resources for this to work")
+        else:
+            fres = None
+            for folder in folder_group:
+                fg = folder["@Include"]
+                if fg == "Resources\\":
+                    fres = fg
+                    break
+            if fres is None:
+                exit("'Resources' folder missing from project")
+
+        # Check for bundle resources group
+        if bundle_resource_group is None:
+            exit("Bundle resources group not found - You need at least one item in the Resources folder for the script to identify which is the correct item group")
+
+        existing_bundle_resources = {}
+        for bundle_resource in bundle_resource_group:
+            inc = bundle_resource["@Include"]
+            inc = winshit_to_posix(inc)
+            if inc.startswith(rel_path):
+                inc = remove_winshit(inc)
+                existing_bundle_resources[inc] = bundle_resource
+
+        missing_resources = []
+        files = os.listdir(img_folder)
+        for name in files:
+
+            if name == '.DS_Store':
+                continue
+            if name.endswith('.lproj'):
+                continue
+            if name.endswith('.xcassets'):
+                continue
+
+            file_path = os.path.join(rel_path, name)
+
+            if file_path not in existing_bundle_resources:
+                if not os.path.isdir(file_path):
+                    missing_resources.append(name)
+
+        missing_resource_dicts = []
+        for mrname in missing_resources:
+            mrname = add_winshit(mrname)
+            mrpath = posix_to_winshit(os.path.join(rel_path, mrname))
+            mrlink = posix_to_winshit(os.path.join('Resources', mrname))
+            od = xmltodict.OrderedDict()
+            od["@Include"] = mrpath
+            od["Link"] = mrlink
+            od["#text"] = ''
+            missing_resource_dicts.append(od)
+
+        for d in missing_resource_dicts:
+            bundle_resource_group.append(d)
+
+        xml = xmltodict.unparse(dom, pretty=True)
+        with open(cs_proj, 'w') as g:
+            g.write(xml)
+
+    @staticmethod
+    def read_rod_overrides():
+
+        d = {}
+
+        folder_path = os.curdir
+        if folder_path == '.':
+            folder_path = os.path.abspath(folder_path)
+        rod_file = os.path.join(folder_path, 'Rodfile')
+
+        f = open(rod_file, 'r')
+        lines = f.readlines()
+        f.close()
+
+        for line in lines:
+            if line.startswith('###'):
+                l = line[3:len(line)]
+                l = l.strip()
+                parts = l.split("=")
+                if len(parts) >= 2:
+                    k = parts[0].strip()
+                    v = parts[1].strip()
+                    d[k] = v
+        return d
+
+    @staticmethod
+    def override_rod_setting_if_exists(d, current, key, value_type):
+        if key in d:
+            val = d[key]
+            if value_type == 'path':
+                if val.startswith('.'):
+                    val = os.path.abspath(val)
+            return val
+        return current
+
+    @staticmethod
+    def read_projects(d, key):
+        cs = []
+        if key in d:
+            vals = d[key].split(',')
+            for val in vals:
+                if val.startswith('.'):
+                    val = os.path.abspath(val)
+                cs.append(val)
+        return cs
+
+    @staticmethod
     def init():
         folder_path = os.curdir
         if folder_path == '.':
@@ -117,16 +262,18 @@ class Rod(object):
             f = open(rod_file, 'w')
             f.write(c)
             f.close()
-            #os.system('touch "%s"' % rod_file)
+
             print '[*] Rodfile created successfully'
 
     @staticmethod
     def update():
-        (xcodeproj, img_folder, input_folder, assets_folder) = Rod.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
         if input_folder is not None:
             Rod.regenerate_resources(input_folder, img_folder, assets_folder)
-        if xcodeproj is not None:
+        for xcodeproj in xcode_projects:
             Rod.update_xcode_project(xcodeproj, img_folder)
+        for csproj in cs_projects:
+            Rod.update_cs_project(csproj, img_folder)
 
     @staticmethod
     def check(should_print_map):
@@ -134,23 +281,45 @@ class Rod(object):
         if folder_path == '.':
             folder_path = os.path.abspath(folder_path)
         xcodeproj = Rod.locate_xcodeproject_file(folder_path)
-        if xcodeproj is None:
-            print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
-            img_folder = folder_path
-        else:
-            img_folder = Rod.locate_image_resources_folder(xcodeproj)
+        img_folder = Rod.locate_image_resources_output_folder(folder_path, xcodeproj)
         if img_folder is None:
             exit("Failed to locate xcode resources/images folder")
         input_folder = Rod.locate_input_resources_folder(folder_path)
         assets_folder = Rod.locate_image_assets_folder(folder_path, xcodeproj)
 
+        # Rod overrides
+        d = Rod.read_rod_overrides()
+        img_folder = Rod.override_rod_setting_if_exists(d, img_folder, 'OUTPUT', 'path')
+        input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
+        assets_folder = Rod.override_rod_setting_if_exists(d, assets_folder, 'XCASSETS', 'path')
+        
+        xc_projects = Rod.read_projects(d, 'XCPROJ')
+        cs_projects = Rod.read_projects(d, 'CSPROJ')
+
+        if xcodeproj is not None:
+            if xcodeproj not in xc_projects:
+                xc_projects.append(xcodeproj)
+
         if should_print_map:
-            print '> Xcodeproj maps to %s' % xcodeproj
             print '> Image Output folder maps to %s' % img_folder
             print '> Image Assets Output folder maps to %s' % assets_folder
             print '> Res Input folder maps to %s' % input_folder
+            print ''
 
-        return xcodeproj, img_folder, input_folder, assets_folder
+            if len(xc_projects) > 0:
+                print '> xcodeproj maps to: '
+                for xproj in xc_projects:
+                    print '  %s' % xproj
+            else:
+                print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
+            print ''
+
+            if len(cs_projects) > 0:
+                print '> csproj maps to: '
+                for cs_proj in cs_projects:
+                    print '  %s' % cs_proj
+
+        return xc_projects, img_folder, input_folder, assets_folder, cs_projects
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--init', help="Generate a Rodfile for the current directory.", action='store_true', default=False)
