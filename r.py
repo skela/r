@@ -129,7 +129,8 @@ class R(object):
         return png_file
 
     def svg2pdf(self, svg_file, pdf_file):
-        cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
+        #cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
+        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file,pdf_file)        
         os.system(cmd)
         return pdf_file
 
@@ -582,13 +583,13 @@ class RBase(object):
             if not succeeded:
                 continue
 
-            if method is not 'launch_image':
+            if method is not "launch_image":
                 sfile = os.path.join(path_to_resources_folder, sfile)
                 if len(os.path.splitext(sfile)[1]) == 0:
-                    sfile += '.svg'
+                    sfile += ".svg"
 
             if method == "auto":
-                if sfile.endswith('.xcf'):
+                if sfile.endswith(".xcf"):
                     self.xcf2pngs(w, h, sfile, png)
                 else:
                     self.svg2pngs(w, h, sfile, png)
@@ -598,20 +599,20 @@ class RBase(object):
                 self.svg2png(w, h, sfile, png)
             elif method == "ic_menu_icon":
                 self.ic_menu_icon(sfile, png)
-            elif method == 'icon' or method == 'app_icon':
+            elif method == "icon" or method == "app_icon":
                 self.icon(sfile)
-            elif method == 'launch_image':
+            elif method == "launch_image":
                 sfiles = sfile.split(':')
                 svg_bg = sfiles[0]
                 svg_centred = sfiles[1]
                 svg_bg = os.path.join(path_to_resources_folder, svg_bg)
                 if len(os.path.splitext(svg_bg)[1]) == 0:
-                    svg_bg += '.svg'
+                    svg_bg += ".svg"
                 svg_centred = os.path.join(path_to_resources_folder, svg_centred)
                 if len(os.path.splitext(svg_centred)[1]) == 0:
-                    svg_centred += '.svg'
+                    svg_centred += ".svg"
                 self.launch_image(svg_bg, svg_centred, w, h)
-            elif method == 'pdf':
+            elif method == "pdf":
                 self.svg2pdf(sfile, png)
 
     @staticmethod
