@@ -7,6 +7,7 @@ import plistlib
 class PackIOS(object):
 
     def __init__(self, root, proj_folder, project, solution, release_notes=None, mdtool=None):
+        self.name = proj_folder
         self.mdtool = mdtool
         self.proj_folder = os.path.join(root, proj_folder)
         self.project = os.path.join(root, project)
