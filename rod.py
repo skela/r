@@ -80,6 +80,12 @@ class Rod(object):
         ri.run_file("Rodfile", input_folder)
 
     @staticmethod
+    def generate_resources(rod_lines, input_folder, output_folder, output_assets_folder):
+        ri = RiOS(output_folder)
+        ri.set_ios_assets(output_assets_folder)
+        ri.run_lines(rod_lines, input_folder)
+
+    @staticmethod
     def update_xcode_project(xcodeproj, img_folder):
 
         pbxproj = os.path.join(xcodeproj, 'project.pbxproj')
@@ -292,7 +298,7 @@ class Rod(object):
         img_folder = Rod.override_rod_setting_if_exists(d, img_folder, 'OUTPUT', 'path')
         input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
         assets_folder = Rod.override_rod_setting_if_exists(d, assets_folder, 'XCASSETS', 'path')
-        
+
         xc_projects = Rod.read_projects(d, 'XCPROJ')
         cs_projects = Rod.read_projects(d, 'CSPROJ')
 
@@ -321,17 +327,18 @@ class Rod(object):
 
         return xc_projects, img_folder, input_folder, assets_folder, cs_projects
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-i', '--init', help="Generate a Rodfile for the current directory.", action='store_true', default=False)
-parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
-parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--init', help="Generate a Rodfile for the current directory.", action='store_true', default=False)
+    parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
+    parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
+    args = parser.parse_args()
 
-if args.init:
-    Rod.init()
-elif args.update:
-    Rod.update()
-elif args.check:
-    Rod.check(should_print_map=True)
-else:
-    parser.print_help()
+    if args.init:
+        Rod.init()
+    elif args.update:
+        Rod.update()
+    elif args.check:
+        Rod.check(should_print_map=True)
+    else:
+        parser.print_help()

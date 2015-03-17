@@ -130,7 +130,7 @@ class R(object):
 
     def svg2pdf(self, svg_file, pdf_file):
         #cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
-        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file,pdf_file)        
+        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file,pdf_file)
         os.system(cmd)
         return pdf_file
 
@@ -565,6 +565,20 @@ class RBase(object):
                         png = comps[0]
         return succeeded, method, w, h, svg, png
 
+    @staticmethod
+    def script_for_line(line):
+        if not line.startswith("#"):
+            comps = line.split(",")
+            if len(comps)==1:
+                c = comps[0]
+                if c.endswith('.sh') or c.endswith('.py'):
+
+                    return os.path.join(os.curdir, c)
+
+
+                    #return c
+        return None
+
     # Load File
     #   path_to_resources_file = path to the file that lists resources in the following format:
     #       w,h,sfile,png
@@ -578,7 +592,19 @@ class RBase(object):
         s = f.read()
         f.close()
         l = s.split("\n")
-        for line in l:
+        self.run_lines(l, path_to_resources_folder)
+
+    def run_lines(self, lines, path_to_resources_folder):
+
+        for line in lines:
+
+            if line.startswith('exit'):
+                break
+
+            script = RBase.script_for_line(line)
+            if script is not None:
+                os.system(script)
+
             (succeeded, method, w, h, sfile, png) = RBase.components_for_line(line)
             if not succeeded:
                 continue
