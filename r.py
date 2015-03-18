@@ -171,7 +171,6 @@ class R(object):
 
         cmd = self.path_convert + ' ' + in_file
         cmd = '{} -scale {}x{} {}'.format(cmd, w, h, out_file)
-        print cmd
         os.system(cmd)
 
     def png2pngs(self, width2x, height2x, out_file, in_file):
