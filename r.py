@@ -171,6 +171,7 @@ class R(object):
 
         cmd = self.path_convert + ' ' + in_file
         cmd = '{} -scale {}x{} {}'.format(cmd, w, h, out_file)
+        print cmd
         os.system(cmd)
 
     def png2pngs(self, width2x, height2x, out_file, in_file):
@@ -230,9 +231,12 @@ class R(object):
     def svg2pngs(self, width1x, height1x, out_file, in_file):
         self.svg2png_r(width1x, height1x, out_file, in_file)
 
-    def png2pngs_r(self, width1x, height1x, out_file, in_file):
+    def png2pngs_r(self, w1x, h1x, out_file, in_file):
         width1x = RUtils.number_from_object(w1x)
         height1x = RUtils.number_from_object(h1x)
+
+        if height1x is None:
+            height1x = width1x
 
         height2x = None
         height3x = None
