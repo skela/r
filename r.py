@@ -230,6 +230,27 @@ class R(object):
     def svg2pngs(self, width1x, height1x, out_file, in_file):
         self.svg2png_r(width1x, height1x, out_file, in_file)
 
+    def png2pngs_r(self, width1x, height1x, out_file, in_file):
+        width1x = RUtils.number_from_object(w1x)
+        height1x = RUtils.number_from_object(h1x)
+
+        height2x = None
+        height3x = None
+
+        width2x = width1x * 2
+        if height1x is not None:
+            height2x = height1x * 2
+        out_file2x = out_file.replace('.png', '@2x.png')
+
+        width3x = width1x * 3
+        if height1x is not None:
+            height3x = height1x * 3
+        out_file3x = out_file.replace('.png', '@3x.png')
+
+        self.png2png(width1x, height1x, out_file, in_file)
+        self.png2png(width2x, height2x, out_file2x, in_file)
+        self.png2png(width3x, height3x, out_file3x, in_file)
+
     def svg2icns(self, icon_svg, icon_icns):
         icon_sizes = [16, 32, 32, 64, 128, 256, 256, 512, 512, 1024]
         icon_names = ['16x16', '16x16@2x', '32x32', '32x32@2x', '128x128', '128x128@2x', '256x256', '256x256@2x', '512x512', '512x512@2x']
@@ -617,6 +638,8 @@ class RBase(object):
             if method == "auto":
                 if sfile.endswith(".xcf"):
                     self.xcf2pngs(w, h, sfile, png)
+                elif sfile.endswith(".png"):
+                    self.png2pngs(w, h, sfile, png)
                 else:
                     self.svg2pngs(w, h, sfile, png)
             elif method == "svg" or method == "inkscape":
@@ -762,6 +785,11 @@ class RiOS(RBase):
         out_path = os.path.join(out_path, o_name + ".pdf")
 
         return out_path
+
+    def png2pngs(self, w_1x, h_1x, png_file, out_name=None):
+        in_file = png_file
+        out_file = RiOS.out_path_from_out_name(self.path_ios_resources, png_file, out_name)
+        self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)
 
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         in_file = svg_file
