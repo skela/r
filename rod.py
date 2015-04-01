@@ -276,6 +276,11 @@ class Rod(object):
         (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
         if input_folder is not None:
             Rod.regenerate_resources(input_folder, img_folder, assets_folder)
+        Rod.update_projects()
+
+    @staticmethod
+    def update_projects():
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
         for xcodeproj in xcode_projects:
             Rod.update_xcode_project(xcodeproj, img_folder)
         for csproj in cs_projects:
@@ -332,6 +337,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--init', help="Generate a Rodfile for the current directory.", action='store_true', default=False)
     parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
     parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
+    parser.add_argument('-r', '--repopulate', help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action='store_true', default=False)
     args = parser.parse_args()
 
     if args.init:
@@ -340,5 +346,7 @@ if __name__ == "__main__":
         Rod.update()
     elif args.check:
         Rod.check(should_print_map=True)
+    elif args.repopulate:
+        Rod.update_projects()
     else:
         parser.print_help()
