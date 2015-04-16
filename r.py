@@ -71,6 +71,12 @@ class RConfig(object):
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
             path = path_convert
+
+        if not os.path.exists(path):
+            path = "/opt/local/bin/convert"
+        if not os.path.exists(path):
+            path = "/usr/local/bin/convert"
+
         return path
 
 
