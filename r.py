@@ -116,17 +116,20 @@ class R(object):
         if not isinstance(height, str) and h is not None:
             h = str(height)
 
-        cmd = self.path_inkscape + ' --without-gui --file="' + svg_file + '"'
+        svg_path = os.path.abspath(svg_file)
+        png_path = os.path.abspath(png_file)
+
+        cmd = self.path_inkscape + ' --without-gui --file="%s"' % svg_path
         cmd = cmd + " --export-background-opacity=0"
         if options is not None:
             cmd = cmd + " " + options
         if h is None:
-            cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w
+            cmd = cmd + ' --export-png="' + png_path + '" --export-width=' + w
         else:
-            cmd = cmd + ' --export-png="' + png_file + '" --export-width=' + w + ' --export-height=' + h
+            cmd = cmd + ' --export-png="' + png_path + '" --export-width=' + w + ' --export-height=' + h
         os.system(cmd)
 
-        return png_file
+        return png_path
 
     def svg2pdf(self, svg_file, pdf_file):
         #cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
@@ -223,12 +226,14 @@ class R(object):
             height3x = height1x * 3
         out_file3x = out_file.replace('.png', '@3x.png')
 
-        self.svg2png(width1x, height1x, out_file, in_file)
-        self.svg2png(width2x, height2x, out_file2x, in_file)
-        self.svg2png(width3x, height3x, out_file3x, in_file)
+        res = []
+        res.append(self.svg2png(width1x, height1x, out_file, in_file))
+        res.append(self.svg2png(width2x, height2x, out_file2x, in_file))
+        res.append(self.svg2png(width3x, height3x, out_file3x, in_file))
+        return res
 
     def svg2pngs(self, width1x, height1x, out_file, in_file):
-        self.svg2png_r(width1x, height1x, out_file, in_file)
+        return self.svg2png_r(width1x, height1x, out_file, in_file)
 
     def png2pngs_r(self, w1x, h1x, out_file, in_file):
         width1x = RUtils.number_from_object(w1x)
@@ -545,6 +550,20 @@ class R(object):
 
         cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
         os.system(cmd)
+
+    def convert_color(self, in_path_png, out_path_png, from_color, to_color):
+        '''
+        from color is the the color u want to convert - either rgb(51,51,51) or a color name
+        to color is the color u want to convert to
+        '''
+        cmd = '%s "%s" +level-colors "%s","%s" "%s"' % (self.path_convert, in_path_png, to_color, from_color, out_path_png)        
+        os.system(cmd)
+
+    def convert_color_from_white(self, in_path_png, out_path_png, to_color):
+        self.convert_color(in_path_png, out_path_png, 'white', to_color)
+
+    def convert_color_from_black(self, in_path_png, out_path_png, to_color):
+        self.convert_color(in_path_png, out_path_png, 'black', to_color)
 
 
 class RBase(object):
