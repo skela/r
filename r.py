@@ -837,6 +837,7 @@ class RiOS(RBase):
         svg_centred_size_1x = [width, height]
         self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
 
+
 class RResources(RBase):
 
     def __init__(self, path_to_source_files=None, path_to_destination_ios=None, path_to_destination_droid=None, path_inkscape=None, path_convert=None):

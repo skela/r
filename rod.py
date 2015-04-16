@@ -253,7 +253,8 @@ class Rod(object):
                 cs.append(val)
         return cs
 
-    def init(self):
+    @staticmethod
+    def init():
         folder_path = os.curdir
         if folder_path == '.':
             folder_path = os.path.abspath(folder_path)
@@ -347,7 +348,7 @@ if __name__ == "__main__":
     rod = Rod()
 
     if args.init:
-        rod.init()
+        Rod.init()
     elif args.update:
         rod.update()
     elif args.check:
