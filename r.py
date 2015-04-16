@@ -71,6 +71,12 @@ class RConfig(object):
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
             path = path_convert
+
+        if not os.path.exists(path):
+            path = "/opt/local/bin/convert"
+        if not os.path.exists(path):
+            path = "/usr/local/bin/convert"
+
         return path
 
 
@@ -849,6 +855,7 @@ class RiOS(RBase):
         height = RUtils.number_from_object(h)
         svg_centred_size_1x = [width, height]
         self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
+
 
 class RResources(RBase):
 
