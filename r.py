@@ -79,7 +79,6 @@ class RConfig(object):
 
         return path
 
-
     @staticmethod
     def setup_path_to_svg2pdf(path_svg2pdf):
         path = path_svg2pdf
@@ -138,8 +137,8 @@ class R(object):
         return png_path
 
     def svg2pdf(self, svg_file, pdf_file):
-        #cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
-        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file,pdf_file)
+        # cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
+        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file, pdf_file)
         os.system(cmd)
         return pdf_file
 
@@ -331,7 +330,7 @@ class R(object):
             images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x"})
 
             file_name = "icon_%s-%s-3x.png" % (idiom, dim_string)
-            if not ics in banlist3x:
+            if ics not in banlist3x:
                 self.svg2png(wh3, wh3, tmp_folder + file_name, icon_svg)
                 images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "3x"})
 
@@ -591,9 +590,16 @@ class RBase(object):
         method = "auto"
         svg = None
         png = None
+        action = None
 
         if not line.startswith("#"):
-            comps = line.split(",")
+
+            sline = line
+            if "|" in line:
+                sline = line[0:line.find("|")]
+                action = line[line.find("|")+1:len(line)]
+
+            comps = sline.split(",")
             if not len(comps) == 0:
                 if len(comps) >= 2:
                     if not RBase.is_number(comps[0]):
@@ -612,20 +618,16 @@ class RBase(object):
                         succeeded = True
                     if len(comps) > 0:
                         png = comps[0]
-        return succeeded, method, w, h, svg, png
+        return succeeded, method, w, h, svg, png, action
 
     @staticmethod
     def script_for_line(line):
         if not line.startswith("#"):
             comps = line.split(",")
-            if len(comps)==1:
+            if len(comps) == 1:
                 c = comps[0]
                 if c.endswith('.sh') or c.endswith('.py'):
-
                     return os.path.join(os.curdir, c)
-
-
-                    #return c
         return None
 
     # Load File
@@ -654,7 +656,7 @@ class RBase(object):
             if script is not None:
                 os.system(script)
 
-            (succeeded, method, w, h, sfile, png) = RBase.components_for_line(line)
+            (succeeded, method, w, h, sfile, png, action) = RBase.components_for_line(line)
             if not succeeded:
                 continue
 
@@ -756,7 +758,7 @@ class RDroid(RBase):
     def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.xcf2png(w_1x, h_1x, svg_file, out_name)
 
-    def svg2pdf(self,svg_file, out_name=None):
+    def svg2pdf(self, svg_file, out_name=None):
         print "svg2pdf is not supported on android"
 
 
@@ -784,7 +786,7 @@ class RiOS(RBase):
     @staticmethod
     def out_path_from_out_name_pdf(path_ios_resources, source_file, out_name=None):
         dr = path_ios_resources
-        if not 'Images.xcassets' in dr:
+        if 'Images.xcassets' not in dr:
             img_assets = os.path.join(dr, 'Images.xcassets')
         else:
             img_assets = dr
@@ -868,7 +870,7 @@ class RResources(RBase):
 
     def svg2pngs(self, w_1x, h_1x, in_name, out_name=None):
         in_file = in_name
-        if not os.path.exists(in_file) and not self.path_to_source_files is None:
+        if not os.path.exists(in_file) and self.path_to_source_files is not None:
             in_file = os.path.join(self.path_source_resources, in_name)
         if self.ios_resources is not None:
             self.ios_resources.svg2pngs(w_1x, h_1x, in_file, out_name)
