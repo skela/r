@@ -3,7 +3,7 @@ import os
 import argparse
 import xmltodict
 
-from r import RiOS
+from rplatform import RiOS
 from r import R
 
 
@@ -275,7 +275,7 @@ class Rod(object):
             print '[*] Rodfile created successfully'
 
     def update(self):
-        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = Rod.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = self.check(should_print_map=False)
         if input_folder is not None:
             self.regenerate_resources(input_folder, img_folder, assets_folder)		
         self.update_projects()
