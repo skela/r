@@ -154,16 +154,32 @@ class RBase(object):
         return c
 
 
+class RDroidDensity(object):
+
+    def __init__(self, density):
+        self.drawable_folder = "drawable-" + density
+        self.scale = 2
+        if density == "xxhdpi":
+            self.scale = 3
+
+
 class RDroid(RBase):
 
     def __init__(self, path_droid_resources, path_inkscape=None, path_convert=None):
         self.r = R(path_inkscape, path_convert)
         self.path_droid_resources = path_droid_resources
-        self.drawable_folder = "drawable-xhdpi"
-        self.scale = 2
+        self.densities = [RDroidDensity("xhdpi")]
 
-    def out_path_from_out_name(self, svg_file, out_name=None):
-        dr = os.path.join(self.path_droid_resources, self.drawable_folder)
+    def set_densities(self, densities):
+        self.densities = []
+        dens = densities
+        if not isinstance(densities, (list, tuple)):
+            dens = densities.split(",")
+        for density in dens:
+            self.densities.append(RDroidDensity(density))
+
+    def out_path_from_out_name(self, density, svg_file, out_name=None):
+        dr = os.path.join(self.path_droid_resources, density.drawable_folder)
         o_name = out_name
         if o_name is None:
             icon_name = os.path.basename(svg_file)
@@ -172,36 +188,40 @@ class RDroid(RBase):
         return out_path
 
     def ic_menu_icon(self, svg_file, out_name=None):
-        out_path = self.out_path_from_out_name(svg_file, out_name)
-        self.r.svg2png(64, 64, out_path, svg_file)
 
-        in_path = out_path
+        for density in self.densities:
+            out_path = self.out_path_from_out_name(density, svg_file, out_name)
+            self.r.svg2png(32*density.scale, 32*density.scale, out_path, svg_file)
 
-        # 333333
-        out_path_dark = out_path.replace(".png", "_light.png")
-        self.r.convert_color(in_path, out_path_dark, 'white', "rgb(51,51,51)")
+            in_path = out_path
 
-        # FFFFFF
-        out_path_light = out_path.replace(".png", "_dark.png")
-        self.r.convert_color(in_path, out_path_light, 'white', "rgb(255,255,255)")
+            # 333333
+            out_path_dark = out_path.replace(".png", "_light.png")
+            self.r.convert_color(in_path, out_path_dark, 'white', "rgb(51,51,51)")
 
-        cmd = 'rm "%s"' % in_path
-        os.system(cmd)
+            # FFFFFF
+            out_path_light = out_path.replace(".png", "_dark.png")
+            self.r.convert_color(in_path, out_path_light, 'white', "rgb(255,255,255)")
+
+            cmd = 'rm "%s"' % in_path
+            os.system(cmd)
 
     def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
-        out_path = self.out_path_from_out_name(svg_file, out_name)
-        w = RUtils.number_from_object(w_1x)*self.scale
-        h = RUtils.number_from_object(h_1x)*self.scale
-        self.r.svg2png(w, h, out_path, svg_file)
+        for density in self.densities:
+            out_path = self.out_path_from_out_name(density, svg_file, out_name)
+            w = RUtils.number_from_object(w_1x)*density.scale
+            h = RUtils.number_from_object(h_1x)*density.scale
+            self.r.svg2png(w, h, out_path, svg_file)
 
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.svg2png(w_1x, h_1x, svg_file, out_name)
 
     def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
-        out_path = self.out_path_from_out_name(xcf_file, out_name)
-        w = RUtils.number_from_object(w_1x)*self.scale
-        h = RUtils.number_from_object(h_1x)*self.scale
-        self.r.xcf2png(w, h, out_path, xcf_file)
+        for density in self.densities:
+            out_path = self.out_path_from_out_name(density, xcf_file, out_name)
+            w = RUtils.number_from_object(w_1x)*density.scale
+            h = RUtils.number_from_object(h_1x)*density.scale
+            self.r.xcf2png(w, h, out_path, xcf_file)
 
     def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.xcf2png(w_1x, h_1x, svg_file, out_name)

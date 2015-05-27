@@ -80,20 +80,21 @@ class Rod(object):
                 return res
         return None
 
-    def r_for_platform(self, output_folder, output_assets_folder, platform):
+    def r_for_platform(self, output_folder, output_assets_folder, platform, densities):
         if platform == "droid" or platform == "android":
             rd = RDroid(output_folder, self.path_inkscape, self.path_convert)
+            rd.set_densities(densities)
             return rd
         ri = RiOS(output_folder, self.path_inkscape, self.path_convert)
         ri.set_ios_assets(output_assets_folder)
         return ri
 
-    def regenerate_resources(self, input_folder, output_folder, output_assets_folder, platform="ios"):
-        r = self.r_for_platform(output_folder, output_assets_folder, platform)
+    def regenerate_resources(self, input_folder, output_folder, output_assets_folder, platform="ios", densities="xhdpi"):
+        r = self.r_for_platform(output_folder, output_assets_folder, platform, densities)
         r.run_file(self.rodfile, input_folder)
 
-    def generate_resources(self, rod_lines, input_folder, output_folder, output_assets_folder, platform="ios"):
-        r = self.r_for_platform(output_folder, output_assets_folder, platform)
+    def generate_resources(self, rod_lines, input_folder, output_folder, output_assets_folder, platform="ios", densities="xhdpi"):
+        r = self.r_for_platform(output_folder, output_assets_folder, platform, densities)
         r.run_lines(rod_lines, input_folder)
 
     @staticmethod
@@ -282,13 +283,13 @@ class Rod(object):
             print '[*] Rodfile created successfully'
 
     def update(self):
-        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform) = self.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform, densities) = self.check(should_print_map=False)
         if input_folder is not None:
-            self.regenerate_resources(input_folder, img_folder, assets_folder, platform)
+            self.regenerate_resources(input_folder, img_folder, assets_folder, platform, densities)
         self.update_projects()
 
     def update_projects(self):
-        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform) = self.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform, densities) = self.check(should_print_map=False)
         for xcodeproj in xcode_projects:
             Rod.update_xcode_project(xcodeproj, img_folder)
         for csproj in cs_projects:
@@ -316,7 +317,8 @@ class Rod(object):
         output_folder = Rod.override_rod_setting_if_exists(d, output_folder, 'OUTPUT', 'path')
         input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
         assets_folder = Rod.override_rod_setting_if_exists(d, assets_folder, 'XCASSETS', 'path')
-        platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'path').lower()
+        platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'value').lower()
+        densities = Rod.override_rod_setting_if_exists(d, "xhdpi", 'DENSITIES', 'value').lower()
 
         xc_projects = Rod.read_projects(d, 'XCPROJ')
         cs_projects = Rod.read_projects(d, 'CSPROJ')
@@ -327,9 +329,12 @@ class Rod(object):
 
         if should_print_map:
             print '> Image Output folder maps to %s' % output_folder
-            print '> Image Assets Output folder maps to %s' % assets_folder
+            if platform == "ios":
+                print '> Image Assets Output folder maps to %s' % assets_folder
             print '> Res Input folder maps to %s' % input_folder
             print '> Platform system to use %s' % platform
+            if platform == "android" or platform == "droid":
+                print '> Densities to use %s' % densities
             print ''
 
             print "> inkscape maps to: %s" % r.path_inkscape
@@ -349,7 +354,7 @@ class Rod(object):
                 for cs_proj in cs_projects:
                     print '  %s' % cs_proj
 
-        return xc_projects, output_folder, input_folder, assets_folder, cs_projects, platform
+        return xc_projects, output_folder, input_folder, assets_folder, cs_projects, platform, densities
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
