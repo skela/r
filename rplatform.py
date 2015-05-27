@@ -179,13 +179,11 @@ class RDroid(RBase):
 
         # 333333
         out_path_dark = out_path.replace(".png", "_light.png")
-        cmd = '%s "%s" gradient: +level-colors "rgb(51,51,51)",white "%s"' % (self.r.path_convert, in_path, out_path_dark)
-        os.system(cmd)
+        self.r.convert_color(in_path, out_path_dark, 'white', "rgb(51,51,51)")
 
         # FFFFFF
         out_path_light = out_path.replace(".png", "_dark.png")
-        cmd = '%s "%s" gradient: +level-colors "rgb(255,255,255)",white "%s"' % (self.r.path_convert, in_path, out_path_light)
-        os.system(cmd)
+        self.r.convert_color(in_path, out_path_light, 'white', "rgb(255,255,255)")
 
         cmd = 'rm "%s"' % in_path
         os.system(cmd)
