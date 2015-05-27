@@ -4,14 +4,16 @@ import argparse
 import xmltodict
 
 from rplatform import RiOS
+from rplatform import RDroid
 from r import R
 
 
 class Rod(object):
 
-    def __init__(self, path_inkscape=None, path_convert=None):
+    def __init__(self, rodfile="Rodfile", path_inkscape=None, path_convert=None):
         self.path_inkscape = path_inkscape
         self.path_convert = path_convert
+        self.rodfile = rodfile
 
     @staticmethod
     def locate_xcodeproject_file(folder_full_path):
@@ -78,15 +80,21 @@ class Rod(object):
                 return res
         return None
 
-    def regenerate_resources(self, input_folder, output_folder, output_assets_folder):
+    def r_for_platform(self, output_folder, output_assets_folder, platform):
+        if platform == "droid" or platform == "android":
+            rd = RDroid(output_folder, self.path_inkscape, self.path_convert)
+            return rd
         ri = RiOS(output_folder, self.path_inkscape, self.path_convert)
         ri.set_ios_assets(output_assets_folder)
-        ri.run_file("Rodfile", input_folder)
+        return ri
 
-    def generate_resources(self, rod_lines, input_folder, output_folder, output_assets_folder):
-        ri = RiOS(output_folder, self.path_inkscape, self.path_convert)
-        ri.set_ios_assets(output_assets_folder)
-        ri.run_lines(rod_lines, input_folder)
+    def regenerate_resources(self, input_folder, output_folder, output_assets_folder, platform="ios"):
+        r = self.r_for_platform(output_folder, output_assets_folder, platform)
+        r.run_file(self.rodfile, input_folder)
+
+    def generate_resources(self, rod_lines, input_folder, output_folder, output_assets_folder, platform="ios"):
+        r = self.r_for_platform(output_folder, output_assets_folder, platform)
+        r.run_lines(rod_lines, input_folder)
 
     @staticmethod
     def update_xcode_project(xcodeproj, img_folder):
@@ -116,7 +124,7 @@ class Rod(object):
         project.save()
 
     @staticmethod
-    def update_cs_project(cs_proj, img_folder):
+    def update_cs_project(cs_proj, img_folder, platform):
 
         def winshit_to_posix(p):
             return p.replace('\\', '/')
@@ -208,14 +216,14 @@ class Rod(object):
             g.write(xml)
 
     @staticmethod
-    def read_rod_overrides():
+    def read_rod_overrides(rodfile):
 
         d = {}
 
         folder_path = os.curdir
         if folder_path == '.':
             folder_path = os.path.abspath(folder_path)
-        rod_file = os.path.join(folder_path, 'Rodfile')
+        rod_file = os.path.join(folder_path, rodfile)
 
         f = open(rod_file, 'r')
         lines = f.readlines()
@@ -253,13 +261,12 @@ class Rod(object):
                 cs.append(val)
         return cs
 
-    @staticmethod
-    def init():
+    def init(self):
         folder_path = os.curdir
         if folder_path == '.':
             folder_path = os.path.abspath(folder_path)
 
-        rod_file = os.path.join(folder_path, 'Rodfile')
+        rod_file = os.path.join(folder_path, self.rodfile)
         if os.path.exists(rod_file):
             if os.path.isfile(rod_file):
                 print '[!] Existing Rodfile found in directory'
@@ -275,17 +282,17 @@ class Rod(object):
             print '[*] Rodfile created successfully'
 
     def update(self):
-        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = self.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform) = self.check(should_print_map=False)
         if input_folder is not None:
-            self.regenerate_resources(input_folder, img_folder, assets_folder)		
+            self.regenerate_resources(input_folder, img_folder, assets_folder, platform)
         self.update_projects()
 
     def update_projects(self):
-        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects) = self.check(should_print_map=False)
+        (xcode_projects, img_folder, input_folder, assets_folder, cs_projects, platform) = self.check(should_print_map=False)
         for xcodeproj in xcode_projects:
             Rod.update_xcode_project(xcodeproj, img_folder)
         for csproj in cs_projects:
-            Rod.update_cs_project(csproj, img_folder)
+            Rod.update_cs_project(csproj, img_folder, platform)
 
     def check(self, should_print_map):
         folder_path = os.curdir
@@ -305,10 +312,11 @@ class Rod(object):
             exit("Failed to locate image magick (%s does not exist)" % r.path_convert)
 
         # Rod overrides
-        d = Rod.read_rod_overrides()
+        d = Rod.read_rod_overrides(self.rodfile)
         output_folder = Rod.override_rod_setting_if_exists(d, output_folder, 'OUTPUT', 'path')
         input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
         assets_folder = Rod.override_rod_setting_if_exists(d, assets_folder, 'XCASSETS', 'path')
+        platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'path').lower()
 
         xc_projects = Rod.read_projects(d, 'XCPROJ')
         cs_projects = Rod.read_projects(d, 'CSPROJ')
@@ -321,6 +329,7 @@ class Rod(object):
             print '> Image Output folder maps to %s' % output_folder
             print '> Image Assets Output folder maps to %s' % assets_folder
             print '> Res Input folder maps to %s' % input_folder
+            print '> Platform system to use %s' % platform
             print ''
 
             print "> inkscape maps to: %s" % r.path_inkscape
@@ -340,7 +349,7 @@ class Rod(object):
                 for cs_proj in cs_projects:
                     print '  %s' % cs_proj
 
-        return xc_projects, output_folder, input_folder, assets_folder, cs_projects
+        return xc_projects, output_folder, input_folder, assets_folder, cs_projects, platform
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -348,12 +357,13 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
     parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
     parser.add_argument('-r', '--repopulate', help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action='store_true', default=False)
+    parser.add_argument('-f', '--rodfile', help="The name of the rodfile", default="Rodfile")
     args = parser.parse_args()
 
-    rod = Rod()
+    rod = Rod(args.rodfile)
 
     if args.init:
-        Rod.init()
+        rod.init()
     elif args.update:
         rod.update()
     elif args.check:

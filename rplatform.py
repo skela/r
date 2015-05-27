@@ -159,10 +159,11 @@ class RDroid(RBase):
     def __init__(self, path_droid_resources, path_inkscape=None, path_convert=None):
         self.r = R(path_inkscape, path_convert)
         self.path_droid_resources = path_droid_resources
+        self.drawable_folder = "drawable-xhdpi"
+        self.scale = 2
 
-    @staticmethod
-    def out_path_from_out_name(path_droid_resources, svg_file, out_name=None):
-        dr = os.path.join(path_droid_resources, "drawable-xhdpi")
+    def out_path_from_out_name(self, svg_file, out_name=None):
+        dr = os.path.join(self.path_droid_resources, self.drawable_folder)
         o_name = out_name
         if o_name is None:
             icon_name = os.path.basename(svg_file)
@@ -171,7 +172,7 @@ class RDroid(RBase):
         return out_path
 
     def ic_menu_icon(self, svg_file, out_name=None):
-        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
+        out_path = self.out_path_from_out_name(svg_file, out_name)
         self.r.svg2png(64, 64, out_path, svg_file)
 
         in_path = out_path
@@ -190,18 +191,18 @@ class RDroid(RBase):
         os.system(cmd)
 
     def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
-        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, svg_file, out_name)
-        w = RUtils.number_from_object(w_1x)*2
-        h = RUtils.number_from_object(h_1x)*2
+        out_path = self.out_path_from_out_name(svg_file, out_name)
+        w = RUtils.number_from_object(w_1x)*self.scale
+        h = RUtils.number_from_object(h_1x)*self.scale
         self.r.svg2png(w, h, out_path, svg_file)
 
     def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
         self.svg2png(w_1x, h_1x, svg_file, out_name)
 
     def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
-        out_path = RDroid.out_path_from_out_name(self.path_droid_resources, xcf_file, out_name)
-        w = RUtils.number_from_object(w_1x)*2
-        h = RUtils.number_from_object(h_1x)*2
+        out_path = self.out_path_from_out_name(xcf_file, out_name)
+        w = RUtils.number_from_object(w_1x)*self.scale
+        h = RUtils.number_from_object(h_1x)*self.scale
         self.r.xcf2png(w, h, out_path, xcf_file)
 
     def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
