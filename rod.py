@@ -10,10 +10,10 @@ from r import R
 
 class Rod(object):
 
-    def __init__(self, rodfile="Rodfile", path_inkscape=None, path_convert=None):
+    def __init__(self, rod_file="Rodfile", path_inkscape=None, path_convert=None):
         self.path_inkscape = path_inkscape
         self.path_convert = path_convert
-        self.rodfile = rodfile
+        self.rodfile = rod_file
 
     @staticmethod
     def locate_xcodeproject_file(folder_full_path):
@@ -148,83 +148,140 @@ class Rod(object):
 
         item_groups = dom['Project']['ItemGroup']
 
-        folder_group = None
-        bundle_resource_group = None
-        for node in item_groups:
-            if 'Folder' in node:
-                folder_group = node["Folder"]
-            if 'BundleResource' in node:
-                bundle_resource_group = node["BundleResource"]
+        if platform == "ios":
 
-        # Check for folder_group folder called Resources
-        if folder_group is None:
-            exit("Folder group not found - You need a Folder in the project tree called Resources for this to work")
-        else:
-            fres = None
-            for folder in folder_group:
-                fg = folder["@Include"]
-                if fg == "Resources\\":
-                    fres = fg
-                    break
-            if fres is None:
-                exit("'Resources' folder missing from project")
+            folder_group = None
+            bundle_resource_group = None
+            android_resources_group = None
+            for node in item_groups:
+                if 'Folder' in node:
+                    folder_group = node["Folder"]
+                if 'BundleResource' in node:
+                    bundle_resource_group = node["BundleResource"]
+                if 'AndroidResource' in node:
+                    android_resources_group = node['AndroidResource']
 
-        # Check for bundle resources group
-        if bundle_resource_group is None:
-            exit("Bundle resources group not found - You need at least one item in the Resources folder for the script to identify which is the correct item group")
+            for res in android_resources_group:
+                print res
 
-        existing_bundle_resources = {}
-        for bundle_resource in bundle_resource_group:
-            inc = bundle_resource["@Include"]
-            inc = winshit_to_posix(inc)
-            if inc.startswith(rel_path):
-                inc = remove_winshit(inc)
-                existing_bundle_resources[inc] = bundle_resource
+            # Check for folder_group folder called Resources
+            if folder_group is None:
+                exit("Folder group not found - You need a Folder in the project tree called Resources for this to work")
+            else:
+                fres = None
+                for folder in folder_group:
+                    fg = folder["@Include"]
+                    if fg == "Resources\\":
+                        fres = fg
+                        break
+                if fres is None:
+                    exit("'Resources' folder missing from project")
 
-        missing_resources = []
-        files = os.listdir(img_folder)
-        for name in files:
+            # Check for bundle resources group
+            if bundle_resource_group is None:
+                exit("Bundle resources group not found - You need at least one item in the Resources folder for the script to identify which is the correct item group")
 
-            if name == '.DS_Store':
-                continue
-            if name.endswith('.lproj'):
-                continue
-            if name.endswith('.xcassets'):
-                continue
+            existing_bundle_resources = {}
+            for bundle_resource in bundle_resource_group:
+                inc = bundle_resource["@Include"]
+                inc = winshit_to_posix(inc)
+                if inc.startswith(rel_path):
+                    inc = remove_winshit(inc)
+                    existing_bundle_resources[inc] = bundle_resource
 
-            file_path = os.path.join(rel_path, name)
+            missing_resources = []
+            files = os.listdir(img_folder)
+            for name in files:
 
-            if file_path not in existing_bundle_resources:
-                if not os.path.isdir(file_path):
-                    missing_resources.append(name)
+                if name == '.DS_Store':
+                    continue
+                if name.endswith('.lproj'):
+                    continue
+                if name.endswith('.xcassets'):
+                    continue
 
-        missing_resource_dicts = []
-        for mrname in missing_resources:
-            mrname = add_winshit(mrname)
-            mrpath = posix_to_winshit(os.path.join(rel_path, mrname))
-            mrlink = posix_to_winshit(os.path.join('Resources', mrname))
-            od = xmltodict.OrderedDict()
-            od["@Include"] = mrpath
-            od["Link"] = mrlink
-            od["#text"] = ''
-            missing_resource_dicts.append(od)
+                file_path = os.path.join(rel_path, name)
 
-        for d in missing_resource_dicts:
-            bundle_resource_group.append(d)
+                if file_path not in existing_bundle_resources:
+                    if not os.path.isdir(file_path):
+                        missing_resources.append(name)
+
+            missing_resource_dicts = []
+            for mrname in missing_resources:
+                mrname = add_winshit(mrname)
+                mrpath = posix_to_winshit(os.path.join(rel_path, mrname))
+                mrlink = posix_to_winshit(os.path.join('Resources', mrname))
+                od = xmltodict.OrderedDict()
+                od["@Include"] = mrpath
+                od["Link"] = mrlink
+                od["#text"] = ''
+                missing_resource_dicts.append(od)
+
+            for d in missing_resource_dicts:
+                bundle_resource_group.append(d)
+
+        elif platform == "android" or platform == "droid":
+
+            android_resources_group = None
+            for node in item_groups:
+                if 'AndroidResource' in node:
+                    android_resources_group = node['AndroidResource']
+
+            if android_resources_group is None:
+                exit("Android resources group not found - You need at least one item in the Resources folder for the script to identify which is the correct item group")
+
+            folders = os.listdir(img_folder)
+            for folder in folders:
+
+                if folder == '.DS_Store':
+                        continue
+
+                existing_bundle_resources = {}
+                for bundle_resource in android_resources_group:
+                    inc = bundle_resource["@Include"]
+                    inc = winshit_to_posix(inc)
+                    if folder + "/" in inc:
+                        if inc.startswith(rel_path):
+                            inc = remove_winshit(inc)
+                            existing_bundle_resources[inc] = bundle_resource
+
+                missing_resources = []
+                files = os.listdir(os.path.join(img_folder, folder))
+                for name in files:
+                    if name == '.DS_Store':
+                        continue
+                    file_path = os.path.join(rel_path, folder, name)
+                    if file_path not in existing_bundle_resources:
+                        if not os.path.isdir(file_path):
+                            missing_resources.append(name)
+
+                missing_resource_dicts = []
+                for mrname in missing_resources:
+                    mrname = add_winshit(mrname)
+                    mrpath = posix_to_winshit(os.path.join(rel_path, folder, mrname))
+                    mrlink = posix_to_winshit(os.path.join('Resources', folder, mrname))
+                    od = xmltodict.OrderedDict()
+                    od["@Include"] = mrpath
+                    od["Link"] = mrlink
+                    od["#text"] = ''
+                    missing_resource_dicts.append(od)
+
+                for d in missing_resource_dicts:
+                    android_resources_group.append(d)
 
         xml = xmltodict.unparse(dom, pretty=True)
         with open(cs_proj, 'w') as g:
             g.write(xml)
 
     @staticmethod
-    def read_rod_overrides(rodfile):
+    def read_rod_overrides(rod_file):
 
         d = {}
 
         folder_path = os.curdir
         if folder_path == '.':
             folder_path = os.path.abspath(folder_path)
-        rod_file = os.path.join(folder_path, rodfile)
+        rod_file = os.path.join(folder_path, rod_file)
 
         f = open(rod_file, 'r')
         lines = f.readlines()
@@ -362,18 +419,34 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
     parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
     parser.add_argument('-r', '--repopulate', help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action='store_true', default=False)
-    parser.add_argument('-f', '--rodfile', help="The name of the rodfile", default="Rodfile")
+    parser.add_argument('-f', '--rodfile', help="The name of the rodfile", default=None)
     args = parser.parse_args()
 
-    rod = Rod(args.rodfile)
-
-    if args.init:
-        rod.init()
-    elif args.update:
-        rod.update()
-    elif args.check:
-        rod.check(should_print_map=True)
-    elif args.repopulate:
-        rod.update_projects()
+    rodfiles = []
+    if args.rodfile is None:
+        for n in os.listdir(os.curdir):
+            if n.startswith("Rodfile"):
+                rodfiles.append(n)
+        if len(rodfiles) == 0:
+            rodfiles.append("Rodfile")
     else:
-        parser.print_help()
+        rodfiles.append(args.rodfile)
+
+    for rodfile in rodfiles:
+
+        rod = Rod(rodfile)
+
+        if args.init:
+            rod.init()
+        elif args.update:
+            rod.update()
+        elif args.check:
+            if len(rodfiles) > 1:
+                print "Rod file : %s" % rodfile
+            rod.check(should_print_map=True)
+            print ""
+        elif args.repopulate:
+            rod.update_projects()
+        else:
+            parser.print_help()
+            break
