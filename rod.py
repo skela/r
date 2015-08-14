@@ -158,11 +158,6 @@ class Rod(object):
                     folder_group = node["Folder"]
                 if 'BundleResource' in node:
                     bundle_resource_group = node["BundleResource"]
-                if 'AndroidResource' in node:
-                    android_resources_group = node['AndroidResource']
-
-            for res in android_resources_group:
-                print res
 
             # Check for folder_group folder called Resources
             if folder_group is None:
