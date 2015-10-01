@@ -200,14 +200,13 @@ class Rod(object):
                 inc = bundle_resource["@Include"]
                 inc = winshit_to_posix(inc)
                 for folder in folders:
-                    if inc.startswith(folder.path):
+                    folder_rel_path = os.path.relpath(os.path.abspath(folder.path),cs_folder)
+                    if inc.startswith(folder_rel_path):
                         bundle_resources_for_removal[inc] = bundle_resource
-                
+
             for k in bundle_resources_for_removal:
                 bur = bundle_resources_for_removal[k]
                 bundle_resource_group.remove(bur)                
-                #inc = winshit_to_posix(bur["@Include"])
-                #link = winshit_to_posix(bur["Link"])
 
             for folder in folders:
                 for dirName, subdirList, files in os.walk(folder.path):
