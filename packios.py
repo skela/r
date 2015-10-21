@@ -6,13 +6,16 @@ import plistlib
 
 class PackIOS(object):
 
-    def __init__(self, root, proj_folder, project, solution, release_notes=None, mdtool=None):
+    def __init__(self, root, proj_folder, project, solution, release_notes=None, mdtool=None, configuration="Ad-Hoc"):
         self.name = proj_folder
         self.mdtool = mdtool
         self.proj_folder = os.path.join(root, proj_folder)
         self.project = os.path.join(root, project)
         self.solution = os.path.join(root, solution)
-        self.project_bin = os.path.join(root, proj_folder, 'bin/iPhone/Ad-Hoc')
+        self.project_bin = os.path.join(root, proj_folder, 'bin/iPhone/%s' % configuration)
+        self.fallback_project_bin = os.path.join(root, proj_folder, 'bin/iPhone/%s' % "Release")
+        self.configuration = configuration
+        self.project_name = os.path.splitext(os.path.basename(project))[0]
 
         self.release_notes = release_notes
         if release_notes is not None:
@@ -28,6 +31,11 @@ class PackIOS(object):
             if not os.path.exists(self.release_notes):
                 exit("Failed to locate release notes - %s" % self.release_notes)
 
+    def get_project_bin_folder(self):
+        if os.path.exists(self.project_bin):
+            return self.project_bin
+        return self.fallback_project_bin
+
     def get_release_notes(self):
         if self.release_notes is None:
             return ""
@@ -37,7 +45,7 @@ class PackIOS(object):
         return rn
 
     def name_of_file(self, file_type):
-        files = os.listdir(self.project_bin)
+        files = os.listdir(self.get_project_bin_folder())
         ipa_files = []
         for f in files:
             if f.endswith('.'+file_type):
@@ -57,11 +65,11 @@ class PackIOS(object):
 
     def path_to_ipa(self):
         name = self.name_of_ipa()
-        return os.path.join(self.project_bin, name)
+        return os.path.join(self.get_project_bin_folder(), name)
 
     def path_to_dsym(self):
         name = self.name_of_dsym()
-        return os.path.join(self.project_bin, name)
+        return os.path.join(self.get_project_bin_folder(), name)
 
     def path_to_info_plist(self):
         return os.path.join(self.proj_folder, 'Info.plist')
@@ -122,8 +130,8 @@ class PackIOS(object):
         v = ""
         if verbosely:
             v = "-v"
-        cmd = '"%s" %s build "--configuration:Ad-Hoc|iPhone" "%s"' % (self.mdtool, v, self.solution)
-        os.system(cmd)
+        cmd = '"%s" %s archive "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)
+        os.system(cmd)        
         if not os.path.exists(self.path_to_ipa()):
             exit("Failed to build ipa, i.e. its missing - " + self.path_to_ipa())
 
