@@ -7,7 +7,7 @@ import subprocess
 
 class PackAndroid(object):
 
-    def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None, configuration='Release'):
+    def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None, configuration='Release', keystore_password=None):
         self.name = project_folder
         self.proj_folder = project_folder
         self.project = project
@@ -17,6 +17,7 @@ class PackAndroid(object):
 
         self.keystore = keystore
         self.keystore_alias = keystore_alias
+        self.keystore_password = keystore_password
 
         # Name of the final apk
         self.apk_name = apk_name
@@ -101,17 +102,20 @@ class PackAndroid(object):
         f.close()
 
     def build(self):
-
         cmd_update = "xbuild %s /t:UpdateAndroidResources /p:Configuration=%s" % (self.project, self.configuration)
         os.system(cmd_update)
 
         cmd = "xbuild %s /t:SignAndroidPackage /p:Configuration=%s" % (self.project, self.configuration)
-        os.system(cmd)
+        os.system(cmd)        
         if not os.path.exists(self.input_apk):
             exit("Failed to build raw apk, i.e. its missing - " + self.input_apk)
 
     def sign(self):
-        subprocess.call([self.jarsigner, "-verbose", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", self.keystore, "-signedjar", self.signed_apk, self.input_apk, self.keystore_alias])
+        sign_cmd = [self.jarsigner, "-verbose", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", self.keystore]
+        if not self.keystore_password is None:
+            sign_cmd.extend(["-storepass",self.keystore_password])
+        sign_cmd.extend(["-signedjar", self.signed_apk, self.input_apk, self.keystore_alias])
+        subprocess.call(sign_cmd)
         subprocess.call([self.zipalign, "-f", "-v", "4", self.signed_apk, self.final_apk])
         if os.path.exists(self.final_apk):
             if os.path.exists(self.signed_apk):
