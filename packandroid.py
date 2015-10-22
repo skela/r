@@ -8,7 +8,7 @@ import subprocess
 class PackAndroid(object):
 
     def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None, configuration='Release'):
-
+        self.name = project_folder
         self.proj_folder = project_folder
         self.project = project
         self.input_apk = input_apk
