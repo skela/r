@@ -10,10 +10,10 @@ from r import R
 
 class RodFolderReference(object):
 
-    def __init__(self,line):        
+    def __init__(self,line):
         c = line.split(',')
         self.path = c[1]
-        self.name = c[2]        
+        self.name = c[2]
         self.ignores = c[3:len(c)]
 
     def __str__(self):
@@ -206,10 +206,10 @@ class Rod(object):
 
             for k in bundle_resources_for_removal:
                 bur = bundle_resources_for_removal[k]
-                bundle_resource_group.remove(bur)                
+                bundle_resource_group.remove(bur)
 
             for folder in folders:
-                for dirName, subdirList, files in os.walk(folder.path):
+                for dirName, subdirList, files in os.walk(folder.path,followlinks=True):
                     for f in files:
                         if not f.startswith("."):
                             file_rel_path = os.path.join(dirName,f)
@@ -232,7 +232,7 @@ class Rod(object):
                 return
             handle_resource_folder_references(bundle_resource_group,folders,resource_folder)
 
-        def handle_android_resource_folder_references(bundle_resource_group,folders,resource_folder):            
+        def handle_android_resource_folder_references(bundle_resource_group,folders,resource_folder):
             if bundle_resource_group is None:
                 print "Warning: Failed to locate Android %s group for %s" % (resource_folder,os.path.basename(cs_proj))
                 return
@@ -255,7 +255,7 @@ class Rod(object):
                 if 'Folder' in node:
                     folder_group = node["Folder"]
                 if 'BundleResource' in node:
-                    bundle_resource_group = node["BundleResource"]                
+                    bundle_resource_group = node["BundleResource"]
 
             # Check for folder_group folder called Resources
             if folder_group is None:
@@ -282,7 +282,7 @@ class Rod(object):
 
             android_resources_group = None
             android_assets_group = None
-            for node in item_groups:                
+            for node in item_groups:
                 if 'AndroidResource' in node:
                     android_resources_group = node['AndroidResource']
                 if 'AndroidAsset' in node:
@@ -366,7 +366,7 @@ class Rod(object):
     @staticmethod
     def read_rod_folder_references(rod_file):
         folders = []
-        lines = Rod.read_rod_lines(rod_file)        
+        lines = Rod.read_rod_lines(rod_file)
         for line in lines:
             if line.startswith('resources_folder'):
                 folders.append(RodFolderReference(line))
