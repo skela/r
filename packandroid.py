@@ -90,6 +90,22 @@ class PackAndroid(object):
         f.write(xml)
         f.close()
 
+    def increment_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)+1)
+        self.set_build_number(build_number)
+
+    def decrement_build_number(self):
+        build_number = self.get_build_number()
+        if build_number is None:
+            build_number = "1"
+        else:
+            build_number = str(int(build_number)-1)
+        self.set_build_number(build_number)
+
     def set_version_number(self, version):
         doc = self.get_manifest_dictionary()
         doc['manifest']['@android:versionName'] = version
@@ -106,7 +122,7 @@ class PackAndroid(object):
         os.system(cmd_update)
 
         cmd = "xbuild %s /t:SignAndroidPackage /p:Configuration=%s" % (self.project, self.configuration)
-        os.system(cmd)        
+        os.system(cmd)
         if not os.path.exists(self.input_apk):
             exit("Failed to build raw apk, i.e. its missing - " + self.input_apk)
 
