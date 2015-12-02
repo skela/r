@@ -171,7 +171,7 @@ class PackAndroid(object):
                 print "Ok, not doing the build, suit yourself..."
                 return None
 
-        self.final_apk = self.final_apk + build_number + '.apk'
+        self.final_apk = self.final_apk + build_number + '-' + version_number + '.apk'
 
         print self.final_apk
 
