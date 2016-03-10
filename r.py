@@ -162,9 +162,13 @@ class R(object):
         if not isinstance(height, str):
             h = str(height)
 
+        in_file = os.path.abspath(in_file)
+        out_file = os.path.abspath(out_file)
+
         cmd = self.path_convert + ' "' + in_file + '"'
         cmd = '{} -background transparent -flatten -scale {}x{} "{}"'.format(cmd, w, h, out_file)
         os.system(cmd)
+        return out_file
 
     def xcf2pdf(self, width, height, out_file, in_file):
         w = width
@@ -188,9 +192,13 @@ class R(object):
         if not isinstance(height, str):
             h = str(height)
 
+        in_file = os.path.abspath(in_file)
+        out_file = os.path.abspath(out_file)
+
         cmd = self.path_convert + ' ' + in_file
         cmd = '{} -scale {}x{} {}'.format(cmd, w, h, out_file)
         os.system(cmd)
+        return out_file
 
     def png2pngs(self, width2x, height2x, out_file, in_file):
         width1x = width2x / 2
@@ -212,11 +220,20 @@ class R(object):
         width2x = width1x * 2
         height2x = height1x * 2
         out_file2x = out_file.replace('.png', '@2x.png')
-        self.xcf2png(width1x, height1x, out_file, in_file)
-        self.xcf2png(width2x, height2x, out_file2x, in_file)
+
+        width3x = width1x * 3
+        if height1x is not None:
+            height3x = height1x * 3
+        out_file3x = out_file.replace('.png', '@3x.png')
+
+        paths = list()
+        paths.append(self.xcf2png(width1x, height1x, out_file, in_file))
+        paths.append(self.xcf2png(width2x, height2x, out_file2x, in_file))
+        paths.append(self.xcf2png(width3x, height3x, out_file3x, in_file))
+        return paths
 
     def xcf2pngs(self, width1x, height1x, out_file, in_file):
-        self.xcf2png_r(width1x, height1x, out_file, in_file)
+        return self.xcf2png_r(width1x, height1x, out_file, in_file)
 
     def svg2png_r2(self, width2x, height2x, out_file, in_file):
         width1x = width2x / 2

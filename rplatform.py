@@ -108,6 +108,13 @@ class RBase(object):
                     self.png2pngs(w, h, sfile, png)
                 else:
                     ret = self.svg2pngs(w, h, sfile, png)
+            elif method == "asset":
+                if sfile.endswith(".xcf"):
+                    self.xcf2pngs(w, h, sfile, png, use_assets=True)
+                elif sfile.endswith(".png"):
+                    self.png2pngs(w, h, sfile, png, use_assets=True)
+                else:
+                    ret = self.svg2pngs(w, h, sfile, png, use_assets=True)
             elif method == "svg" or method == "inkscape":
                 ret = self.svg2pngs(w, h, sfile, png)
             elif method == "svg2png":
@@ -230,6 +237,15 @@ class RDroid(RBase):
         print "svg2pdf is not supported on android"
 
 
+class ImageSetUnit(object):
+        
+        def __init__(self):
+            self.name = None
+            self.scale = None
+            self.folder = None
+            self.desired_name = None
+            self.path = None
+
 class RiOS(RBase):
 
     def __init__(self, path_ios_resources, path_inkscape=None, path_convert=None):
@@ -284,25 +300,105 @@ class RiOS(RBase):
 
         return out_path
 
-    def png2pngs(self, w_1x, h_1x, png_file, out_name=None):
+    def assets_folder_path_from_parameters(self, path_resources, xcassets_path=None):
+        if xcassets_path is not None:
+            return xcassets_path
+        dr = path_resources
+        if 'Images.xcassets' not in dr:
+            img_assets = os.path.join(dr, 'Images.xcassets')
+        else:
+            img_assets = dr
+        return img_assets
+
+    def image_set_unit_from_path(self,img_path,xcassets):        
+        img_name = os.path.splitext(os.path.basename(img_path))[0]
+        img_ext = os.path.splitext(os.path.basename(img_path))[1]
+        img_scale = "1x"
+        ats = ["@2x","@3x","@4x","@5x","@6x","@7x","@8x"]
+        for at in ats:
+            if img_name.endswith(at):
+                img_name = img_name[:-3]
+                img_scale = at[1:]
+                break
+        img = ImageSetUnit()
+        img.path = img_path
+        img.name = img_name
+        img.scale = img_scale
+        img.folder = os.path.join(xcassets, img_name + '.imageset')
+        img.desired_name = img_name + "-" + img_scale + img_ext
+        return img
+
+    def image_set_folder_path(self,img_paths,xcassets):
+        img = self.image_set_unit_from_path(img_paths[0],xcassets)
+        return img.folder
+
+    def image_set_json(self, imgs):
+        images = list()
+        for img in imgs:
+            images.append({"idiom":"universal","filename" : img.desired_name,"scale" : img.scale})
+        d = dict()
+        d["images"] = images
+        d["info"] = {"version": 1, "author": "xcode"}
+        return json.dumps(d)
+
+    def create_image_assets_folders_and_move_images_there(self,img_paths,path_resources,xcassets_path=None):
+
+        if len(img_paths) == 0:
+            exit("Cannot proceed, no image paths in img_paths list")
+
+        xcassets_folder_path = self.assets_folder_path_from_parameters(path_resources,xcassets_path)
+        if not os.path.exists(xcassets_folder_path):
+            os.mkdir(xcassets_folder_path)
+
+        image_folder = self.image_set_folder_path(img_paths,xcassets_folder_path)
+        if not os.path.exists(image_folder):
+            os.mkdir(image_folder)
+
+        imgs = list()
+        for img_path in img_paths:
+            imgs.append(self.image_set_unit_from_path(img_path,xcassets_folder_path))
+
+        s = self.image_set_json(imgs)
+        f = open(os.path.join(image_folder, "Contents.json"), 'w')
+        f.write(s)
+        f.close()
+
+        moved_img_paths = list()
+        for img in imgs:            
+            dest_path = os.path.join(image_folder,img.desired_name)
+            cmd = 'mv "%s" "%s"' % (img.path,dest_path)            
+            os.system(cmd)
+            moved_img_paths.append(dest_path)
+        return moved_img_paths
+
+    def png2pngs(self, w_1x, h_1x, png_file, out_name=None, use_assets=False):
         in_file = png_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, png_file, out_name)
-        self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)
+        out = self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)
+        if use_assets:
+            out = self.create_image_assets_folders_and_move_images_there(out,self.path_ios_resources,self.path_ios_assets)
+        return out
 
-    def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
+    def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None, use_assets=False):
         in_file = svg_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
-        return self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
+        out = self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
+        if use_assets:
+            out = self.create_image_assets_folders_and_move_images_there(out,self.path_ios_resources,self.path_ios_assets)
+        return out
 
     def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
         in_file = svg_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
         return self.r.svg2png(w_1x, h_1x, out_file, in_file)
 
-    def xcf2pngs(self, w_1x, h_1x, xcf_file, out_name=None):
+    def xcf2pngs(self, w_1x, h_1x, xcf_file, out_name=None, use_assets=False):
         in_file = xcf_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
-        self.r.xcf2pngs(w_1x, h_1x, out_file, in_file)
+        out = self.r.xcf2pngs(w_1x, h_1x, out_file, in_file)
+        if use_assets:
+            out = self.create_image_assets_folders_and_move_images_there(out,self.path_ios_resources,self.path_ios_assets)
+        return out
 
     def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
         in_file = xcf_file
