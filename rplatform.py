@@ -332,14 +332,14 @@ class RiOS(RBase):
         img = self.image_set_unit_from_path(img_paths[0],xcassets)
         return img.folder
 
-    def image_set_json(self, imgs):
+    def image_set_dict(self, imgs):
         images = list()
         for img in imgs:
             images.append({"idiom":"universal","filename" : img.desired_name,"scale" : img.scale})
         d = dict()
         d["images"] = images
         d["info"] = {"version": 1, "author": "xcode"}
-        return json.dumps(d)
+        return d
 
     def create_image_assets_folders_and_move_images_there(self,img_paths,path_resources,xcassets_path=None):
 
@@ -358,8 +358,18 @@ class RiOS(RBase):
         for img_path in img_paths:
             imgs.append(self.image_set_unit_from_path(img_path,xcassets_folder_path))
 
-        s = self.image_set_json(imgs)
-        f = open(os.path.join(image_folder, "Contents.json"), 'w')
+        contents_json_path = os.path.join(image_folder, "Contents.json")
+        idic = self.image_set_dict(imgs)
+
+        # if os.path.exists(contents_json_path):
+        #     f = open(contents_json_path)
+        #     jd = f.read()
+        #     f.close()
+        #     jdd = json.loads(jd)
+        #     idic["info"]["version"] = jdd["info"]["version"]+1
+
+        s = json.dumps(idic)
+        f = open(contents_json_path, 'w')
         f.write(s)
         f.close()
 
