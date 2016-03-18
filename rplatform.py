@@ -127,12 +127,9 @@ class RBase(object):
                 sfiles = sfile.split(':')
                 svg_bg = sfiles[0]
                 svg_centred = sfiles[1]
-                svg_bg = os.path.join(path_to_resources_folder, svg_bg)
-                if len(os.path.splitext(svg_bg)[1]) == 0:
-                    svg_bg += ".svg"
-                svg_centred = os.path.join(path_to_resources_folder, svg_centred)
-                if len(os.path.splitext(svg_centred)[1]) == 0:
-                    svg_centred += ".svg"
+                #svg_bg = os.path.abspath(os.path.join(path_to_resources_folder, svg_bg))
+                svg_bg = os.path.abspath(svg_bg)
+                svg_centred = os.path.abspath(os.path.join(path_to_resources_folder, svg_centred))
                 self.launch_image(svg_bg, svg_centred, w, h)
             elif method == "pdf":
                 self.svg2pdf(sfile, png)
