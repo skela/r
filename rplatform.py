@@ -384,7 +384,7 @@ class RiOS(RBase):
     def png2pngs(self, w_1x, h_1x, png_file, out_name=None, use_assets=False):
         in_file = png_file
         out_file = RiOS.out_path_from_out_name(self.path_ios_resources, png_file, out_name)
-        out = self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)
+        out = self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)        
         if use_assets:
             out = self.create_image_assets_folders_and_move_images_there(out,self.path_ios_resources,self.path_ios_assets)
         return out

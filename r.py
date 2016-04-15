@@ -288,9 +288,11 @@ class R(object):
             height3x = height1x * 3
         out_file3x = out_file.replace('.png', '@3x.png')
 
-        self.png2png(width1x, height1x, out_file, in_file)
-        self.png2png(width2x, height2x, out_file2x, in_file)
-        self.png2png(width3x, height3x, out_file3x, in_file)
+        res = list()
+        res.append(self.png2png(width1x, height1x, out_file, in_file))
+        res.append(self.png2png(width2x, height2x, out_file2x, in_file))
+        res.append(self.png2png(width3x, height3x, out_file3x, in_file))
+        return res
 
     def svg2icns(self, icon_svg, icon_icns):
         icon_sizes = [16, 32, 32, 64, 128, 256, 256, 512, 512, 1024]
