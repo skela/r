@@ -110,9 +110,9 @@ class RBase(object):
                     ret = self.svg2pngs(w, h, sfile, png)
             elif method == "asset":
                 if sfile.endswith(".xcf"):
-                    self.xcf2pngs(w, h, sfile, png, use_assets=True)
+                    ret = self.xcf2pngs(w, h, sfile, png, use_assets=True)
                 elif sfile.endswith(".png"):
-                    self.png2pngs(w, h, sfile, png, use_assets=True)
+                    ret = self.png2pngs(w, h, sfile, png, use_assets=True)
                 else:
                     ret = self.svg2pngs(w, h, sfile, png, use_assets=True)
             elif method == "svg" or method == "inkscape":
