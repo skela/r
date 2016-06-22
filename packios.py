@@ -44,12 +44,19 @@ class PackIOS(object):
         f.close()
         return rn
 
-    def name_of_file(self, file_type):
-        files = os.listdir(self.get_project_bin_folder())
+    def files_of_type(self, file_type, folder_path=None):
+        fpath = folder_path
+        if fpath is None:
+            fpath = self.get_project_bin_folder()
+        files = os.listdir(fpath)        
         ipa_files = []
         for f in files:
             if f.endswith('.'+file_type):
-                ipa_files.append(f)
+                ipa_files.append(f)        
+        return ipa_files
+
+    def name_of_file(self, file_type):
+        ipa_files = self.files_of_type(file_type)        
         if len(ipa_files) > 1:
             exit("Too many %s files, not sure which one to pick" % file_type)
         if len(ipa_files) == 0:
@@ -65,7 +72,43 @@ class PackIOS(object):
 
     def path_to_ipa(self):
         name = self.name_of_ipa()
-        return os.path.join(self.get_project_bin_folder(), name)
+        bin_folder = self.get_project_bin_folder()
+        ipa_path = os.path.join(bin_folder, name)        
+        return ipa_path
+
+    def path_to_ipa_alt(self):
+        name = self.name_of_ipa()
+        bin_folder = self.get_project_bin_folder()
+        ipa_path = os.path.join(bin_folder, name)        
+        folders = []
+        files = os.listdir(bin_folder)
+        for f in files:
+            tmp = os.path.join(bin_folder,f)
+            if os.path.isdir(tmp):
+                folders.append(os.path.join(tmp,name))
+        if len(folders) == 1:
+            ipa_path = folders[0] 
+        return ipa_path
+
+    # This can hopefully be removed once Xamarin fix the bug they introduced in 9.8.0 / 9.8.1
+    def dexamarin_ipas(self):
+        bin_folder = self.get_project_bin_folder()
+        folders = []
+        files = os.listdir(bin_folder)        
+        for f in files:
+            tmp = os.path.join(bin_folder,f)
+            if os.path.isdir(tmp):
+                folders.append(tmp)        
+        counter = 0
+        for folder in folders:
+            ipa_files = self.files_of_type('ipa',folder)            
+            for ipa_name in ipa_files:
+                ipa = os.path.join(folder,ipa_name)
+                ipa_name = ipa_name.replace(".ipa","%d.ipa" % counter)
+                dest = os.path.join(bin_folder,ipa_name)
+                cmd = 'mv "%s" "%s"' % (ipa,dest)                
+                os.system(cmd)
+                counter += 1        
 
     def path_to_dsym(self):
         name = self.name_of_dsym()
@@ -130,10 +173,19 @@ class PackIOS(object):
         v = ""
         if verbosely:
             v = "-v"
-        cmd = '"%s" %s archive "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)
-        os.system(cmd)        
-        if not os.path.exists(self.path_to_ipa()):
-            exit("Failed to build ipa, i.e. its missing - " + self.path_to_ipa())
+
+        cmd_build = '"%s" %s build "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)
+        os.system(cmd_build)
+
+        cmd_archive = '"%s" %s archive "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)                
+        os.system(cmd_archive)
+
+        if len(self.files_of_type('ipa')) == 0:
+            self.dexamarin_ipas()
+
+        ipa_path = self.path_to_ipa()        
+        if not os.path.exists(ipa_path):
+            exit("Failed to build ipa, i.e. its missing - " + ipa_path)
 
     def update_version(self):
         print '=>Update version information for ' + os.path.basename(self.project)
@@ -157,6 +209,7 @@ class PackIOS(object):
             self.set_version_number(version_number)
 
     def run(self, update_versions=True, confirm_build=True):
+
         self.clean()
 
         if update_versions:
