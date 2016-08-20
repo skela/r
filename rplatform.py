@@ -243,6 +243,7 @@ class ImageSetUnit(object):
             self.desired_name = None
             self.path = None
 
+
 class RiOS(RBase):
 
     def __init__(self, path_ios_resources, path_inkscape=None, path_convert=None):
@@ -266,13 +267,7 @@ class RiOS(RBase):
 
     @staticmethod
     def out_path_from_out_name_pdf(path_ios_resources, source_file, out_name=None):
-        dr = path_ios_resources
-        if 'Images.xcassets' not in dr:
-            img_assets = os.path.join(dr, 'Images.xcassets')
-        else:
-            img_assets = dr
-        if not os.path.exists(img_assets):
-            exit("Failed to locate Images.xcassets at %s" % img_assets)
+        img_assets = path_ios_resources
         if not os.path.exists(source_file):
             exit("Failed to locate %s" % source_file)
         o_name = out_name
@@ -294,6 +289,8 @@ class RiOS(RBase):
         f.close()
 
         out_path = os.path.join(out_path, o_name + ".pdf")
+
+        out_path = os.path.abspath(out_path)
 
         return out_path
 
@@ -417,7 +414,7 @@ class RiOS(RBase):
         if self.path_ios_assets is not None:
             output_folder = self.path_ios_assets
         in_file = svg_file
-        out_file = RiOS.out_path_from_out_name_pdf(output_folder, svg_file, out_name)
+        out_file = RiOS.out_path_from_out_name_pdf(output_folder, svg_file, out_name)        
         return self.r.svg2pdf(in_file, out_file)
 
     def icon(self, svg_file):
