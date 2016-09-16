@@ -174,8 +174,8 @@ class PackIOS(object):
         if verbosely:
             v = "-v"
 
-        cmd_build = '"%s" %s build "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)
-        os.system(cmd_build)
+        #cmd_build = '"%s" %s build "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)
+        #os.system(cmd_build)
 
         cmd_archive = '"%s" %s archive "--configuration:%s|iPhone" "--project:%s" "%s"' % (self.mdtool, v, self.configuration,self.project_name,self.solution)                
         os.system(cmd_archive)
