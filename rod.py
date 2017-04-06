@@ -142,6 +142,15 @@ class Rod(object):
 		cs_folder = os.path.join(os.path.dirname(cs_proj))
 		rel_path = os.path.relpath(img_folder, cs_folder)  # '../iOSResources/Resources'
 
+		xcasset_folders = []
+		resources_folder = os.path.join(cs_folder,"Resources")
+		for a_file in os.listdir(resources_folder):
+			if a_file.endswith(".xcassets"):
+				if a_file == 'Images.xcassets':
+					xcasset_folders.insert(0,os.path.join(resources_folder,a_file))
+				else:
+					xcasset_folders.append(os.path.join(resources_folder,a_file))
+
 		def winshit_to_posix(p):
 			return p.replace('\\', '/')
 
@@ -238,6 +247,25 @@ class Rod(object):
 				return
 			handle_resource_folder_references(bundle_resource_group,folders,resource_folder)
 
+		def add_xcasset_folder_assets(asset_folders):
+			things = []
+			for catalogue in asset_folders:
+				catalogue_name = os.path.basename(catalogue)
+				catalogue_items = os.listdir(catalogue)
+				for imageset_name in catalogue_items:
+					if imageset_name.endswith(".imageset") or imageset_name.endswith(".appiconset") or imageset_name.endswith(".launchimage"):
+						imageset_folder = os.listdir(os.path.join(catalogue,imageset_name))
+						for imageset_item in imageset_folder:
+							if imageset_item == '.DS_Store':
+								continue
+							include_path = os.path.join("Resources",catalogue_name,imageset_name,imageset_item)
+							include_path = posix_to_winshit(include_path)
+							#<ImageAsset Include="Resources\Flags.xcassets\flag-ecocell-WS.imageset\Contents.json"></ImageAsset>
+							od = xmltodict.OrderedDict()
+							od["@Include"] = include_path
+							things.append(od)
+			return things
+
 		f = open(cs_proj)
 		dom = xmltodict.parse(f, strip_whitespace=True)
 		f.close()
@@ -248,14 +276,27 @@ class Rod(object):
 
 			folder_group = None
 			bundle_resource_group = None
-			android_resources_group = None
-			for node in item_groups:
-				if node is None:
+			image_asset_group = None
+
+			for group in item_groups:
+				if group is None:
 					continue
-				if 'Folder' in node:
-					folder_group = node["Folder"]
-				if 'BundleResource' in node:
-					bundle_resource_group = node["BundleResource"]
+				if 'Folder' in group:
+					folder_group = group["Folder"]
+				if 'BundleResource' in group:
+					bundle_resource_group = group["BundleResource"]
+				if 'ImageAsset' in group:
+					image_asset_group = group['ImageAsset']
+
+			assets = add_xcasset_folder_assets(xcasset_folders)
+
+			if image_asset_group is None:
+				od = xmltodict.OrderedDict()
+				od["ImageAsset"] = assets
+				item_groups.insert(len(item_groups) - 1,od)
+			else:
+				del image_asset_group[:]
+				image_asset_group.extend(assets)
 
 			# Check for folder_group folder called Resources
 			if folder_group is None:
