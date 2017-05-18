@@ -22,7 +22,7 @@ class PackIOS(object):
             self.release_notes = os.path.join(root, release_notes)
 
         if self.mdtool is None:
-            self.mdtool = "/Applications/Xamarin Studio.app/Contents/MacOS/mdtool"
+            self.mdtool = "/Applications/Visual Studio.app/Contents/MacOS/vstool"
 
         if not os.path.exists(self.mdtool):
             exit("Failed to locate mdtool - " + self.mdtool)
