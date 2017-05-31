@@ -58,7 +58,7 @@ class PackIOS(object):
     def name_of_file(self, file_type):
         ipa_files = self.files_of_type(file_type)        
         if len(ipa_files) > 1:
-            exit("Too many %s files, not sure which one to pick" % file_type)
+            exit("Too many %s files, not sure which one to pick : %s" % (file_type,ipa_files))
         if len(ipa_files) == 0:
             exit("Failed to find %s file" % file_type)
         ipa = ipa_files[0]
@@ -68,7 +68,7 @@ class PackIOS(object):
         return self.name_of_file('ipa')
 
     def name_of_dsym(self):
-        return self.name_of_file('dSYM')
+        return self.name_of_file('app.dSYM')
 
     def path_to_ipa(self):
         name = self.name_of_ipa()
