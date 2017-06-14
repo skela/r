@@ -16,7 +16,7 @@ class RUtils(object):
     def number_from_object(o):
         num = o
         if isinstance(o, str) or isinstance(o, unicode):
-            num = Decimal(o)
+            num = float(o)
         return num
 
     @staticmethod

@@ -163,9 +163,19 @@ class RDroidDensity(object):
 
 	def __init__(self, density):
 		self.drawable_folder = "drawable-" + density
-		self.scale = 2
-		if density == "xxhdpi":
+		self.scale = 1
+		if density == "ldpi":
+			self.scale = 0.75
+		elif density == "mdpi":
+			self.scale = 1
+		elif density == "hdpi":
+			self.scale = 1.5
+		elif density == "xhdpi":
+			self.scale = 2
+		elif density == "xxhdpi":
 			self.scale = 3
+		elif density == "xxxhdpi":
+			self.scale = 4
 
 
 class RDroid(RBase):
