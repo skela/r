@@ -63,7 +63,7 @@ class RConfig(object):
                 if not os.path.exists(path):
                     path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
-                path = "inkscape"
+                path = "/usr/bin/inkscape"
             if RConfig.is_windows():
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
@@ -77,7 +77,7 @@ class RConfig(object):
             if RConfig.is_mac():
                 path = "convert"
             if RConfig.is_linux():
-                path = "convert"
+                path = "/usr/bin/convert"
             if RConfig.is_windows():
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
@@ -376,7 +376,7 @@ class R(object):
         f.write(js)
         f.close()
 
-        dest_folder = os.path.join(destination, 'Images.xcassets')
+        dest_folder = destination
 
         if os.path.isdir(dest_folder):
             destination_folder = dest_folder + '/'

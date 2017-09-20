@@ -463,11 +463,11 @@ class Rod(object):
 		self.update_projects()
 
 	def update_projects(self):
-		(xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders) = self.check(should_print_map=False)
-		for xcodeproj in xcode_projects:
-			Rod.update_xcode_project(xcodeproj, img_folder)
+		(xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders) = self.check(should_print_map=False)		
 		for csproj in cs_projects:
 			Rod.update_cs_project(csproj, img_folder, platform, folders)
+		for xcodeproj in xcode_projects:
+			Rod.update_xcode_project(xcodeproj, img_folder)
 
 	def check(self, should_print_map):
 		folder_path = os.curdir

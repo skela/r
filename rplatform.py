@@ -436,7 +436,13 @@ class RiOS(RBase):
 		return self.r.svg2pdf(in_file, out_file)
 
 	def icon(self, svg_file):
-		self.r.svg2appiconset(svg_file, self.path_ios_resources)
+		default_xcassets = os.path.join(self.path_ios_resources,"Images.xcassets")
+		self.r.svg2appiconset(svg_file, default_xcassets)
+		xcassets = self.paths_ios_assets
+		if xcassets is not None:
+			for xc in xcassets:
+				if xc != default_xcassets:
+					self.r.svg2appiconset(svg_file, xc)
 
 	def launch_image(self, svg_bg, svg_centred, w, h):
 		width = RUtils.number_from_object(w)
