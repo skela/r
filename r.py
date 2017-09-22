@@ -319,9 +319,10 @@ class R(object):
         os.system(cmd)
 
     def svg2appiconset(self, icon_svg, destination):
-        icon_sizes = [(29, "iphone"), (40, "iphone"), (57, "iphone"), (60, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad")]
-        banlist1x = [(83.5, "ipad")]
-        banlist3x = [(57, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad")]
+        icon_sizes = [(29, "iphone"), (40, "iphone"), (57, "iphone"), (60, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad"), (1024,"ios-marketing")]
+        banlist1x = [(83.5, "ipad")] 
+        banlist2x = [(1024,"ios-marketing")]
+        banlist3x = [(57, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad"),(1024,"ios-marketing")]
 
         tmp_root_folder = '/tmp/r_icon.xcassets/'
         tmp_folder = tmp_root_folder + 'AppIcon.appiconset/'
@@ -361,8 +362,9 @@ class R(object):
             if str(wh2) in legacy_names:
                 file_name = legacy_names[str(wh2)]
 
-            self.svg2png(wh2, wh2, tmp_folder + file_name, icon_svg)
-            images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x"})
+            if ics not in banlist2x:
+                self.svg2png(wh2, wh2, tmp_folder + file_name, icon_svg)
+                images.append({"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x"})
 
             file_name = "icon_%s-%s-3x.png" % (idiom, dim_string)
             if ics not in banlist3x:
