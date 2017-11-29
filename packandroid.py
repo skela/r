@@ -3,7 +3,7 @@
 import os
 import xmltodict  # sudo easy_install xmltodict
 import subprocess
-
+import zipfile
 
 class PackAndroid(object):
 
@@ -152,6 +152,24 @@ class PackAndroid(object):
             version_number = raw_input("What to?> ")
             self.set_version_number(version_number)
 
+    def copy_symbols(self):
+        artifacts_folder = os.path.join(self.proj_folder, 'bin', 'Release')
+        stuff = os.listdir(artifacts_folder)
+        msym_folder = None
+        for name in stuff:
+            if name.endswith(".mSYM"):
+                msym_folder = os.path.join(artifacts_folder, name)
+                break
+        if msym_folder is not None:
+            def zipdir(path, ziph):                
+                for root, dirs, files in os.walk(path):
+                    for file in files:
+                        ziph.write(os.path.join(root, file),os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
+            msym_destination = os.path.join(os.path.expanduser("~/Desktop/"), os.path.basename(self.final_apk)) + ".mSYM.zip"
+            zipf = zipfile.ZipFile(msym_destination, 'w', zipfile.ZIP_DEFLATED)
+            zipdir(msym_folder, zipf)
+            zipf.close()
+
     def run(self, update_versions=True, confirm_build=True):
 
         self.clean()
@@ -178,5 +196,7 @@ class PackAndroid(object):
         self.build()
 
         self.sign()
+
+        self.copy_symbols()
 
         return self.final_apk
