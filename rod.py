@@ -475,8 +475,6 @@ class Rod(object):
 			folder_path = os.path.abspath(folder_path)
 		xcodeproj = Rod.locate_xcodeproject_file(folder_path)
 		output_folder = Rod.locate_image_resources_output_folder(folder_path, xcodeproj)
-		if output_folder is None:
-			exit("Failed to locate xcode resources/images folder")
 		input_folder = Rod.locate_input_resources_folder(folder_path)
 		assets_folder = Rod.locate_image_assets_folder(folder_path, xcodeproj)
 
@@ -499,8 +497,16 @@ class Rod(object):
 		xc_assets = Rod.read_projects(d, 'XCASSETS')
 		if len(xc_assets) > 0:
 			assets_folders.extend(xc_assets)
+			assets_folder = xc_assets[0]
+			if output_folder is None:
+				output_folder = os.path.join(assets_folder,'..')
 		elif assets_folder is not None:
 			assets_folders.append(assets_folder)
+
+		if assets_folder is None:
+			exit("Failed to locate assets folder")
+		if output_folder is None:
+			exit("Failed to locate xcode resources/images folder")
 
 		xc_projects = Rod.read_projects(d, 'XCPROJ')
 		cs_projects = Rod.read_projects(d, 'CSPROJ')
