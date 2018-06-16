@@ -3,7 +3,7 @@
 import os
 import xmltodict  # sudo easy_install xmltodict
 import subprocess
-
+import zipfile
 
 class PackAndroid(object):
 
@@ -126,6 +126,39 @@ class PackAndroid(object):
         if not os.path.exists(self.input_apk):
             exit("Failed to build raw apk, i.e. its missing - " + self.input_apk)
 
+    @staticmethod
+    def convert_windows_path(any_path):
+
+       chars = []
+
+       for i in range(len(any_path)):
+          char = any_path[i]
+          if char == '\\':
+              chars.append('/')
+          else:
+              chars.append(char)
+       return ''.join(chars)
+
+    @staticmethod
+    def update_solution_resources(solution,configuration):
+        if not os.path.exists(solution):
+            exit("Failed to locate %s - " % os.path.basename(solution))
+        f = file(solution)
+        sln = f.read()
+        f.close()
+        projects = []
+        lines = sln.split('\n')        
+        for line in lines:
+            if line.startswith("Project("):
+                start = line.find(",")
+                rest = line[start+3:len(line)]
+                end = rest.find(",")
+                projects.append(os.path.abspath(os.path.join(os.path.dirname(solution),PackAndroid.convert_windows_path(rest[0:end-1]))))
+        # print projects
+        for project in projects:        
+            cmd_update = "msbuild %s /t:UpdateAndroidResources /p:Configuration=%s" % (project, configuration)
+            os.system(cmd_update)
+
     def sign(self):
         sign_cmd = [self.jarsigner, "-verbose", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", self.keystore]
         if not self.keystore_password is None:
@@ -151,6 +184,24 @@ class PackAndroid(object):
         if q == "y":
             version_number = raw_input("What to?> ")
             self.set_version_number(version_number)
+
+    def copy_symbols(self):
+        artifacts_folder = os.path.join(self.proj_folder, 'bin', 'Release')
+        stuff = os.listdir(artifacts_folder)
+        msym_folder = None
+        for name in stuff:
+            if name.endswith(".mSYM"):
+                msym_folder = os.path.join(artifacts_folder, name)
+                break
+        if msym_folder is not None:
+            def zipdir(path, ziph):                
+                for root, dirs, files in os.walk(path):
+                    for file in files:
+                        ziph.write(os.path.join(root, file),os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
+            msym_destination = os.path.join(os.path.expanduser("~/Desktop/"), os.path.basename(self.final_apk)) + ".mSYM.zip"
+            zipf = zipfile.ZipFile(msym_destination, 'w', zipfile.ZIP_DEFLATED)
+            zipdir(msym_folder, zipf)
+            zipf.close()
 
     def run(self, update_versions=True, confirm_build=True):
 
@@ -178,5 +229,7 @@ class PackAndroid(object):
         self.build()
 
         self.sign()
+
+        self.copy_symbols()
 
         return self.final_apk
