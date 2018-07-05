@@ -1,7 +1,7 @@
 r
 =
 
-rod.py : Resource generation system based
+rod.py : Resource generation system based (Resource Ordnance Declaration)
 
 r.py : Resource Recipes for converting svg,xcf to png's that can be used by iOS and Android apps.
 
