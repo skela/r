@@ -124,6 +124,8 @@ class RBase(object):
 				self.ic_menu_icon(sfile, png)
 			elif method == "icon" or method == "app_icon":
 				self.icon(sfile)
+			elif method == "watch_icon" or method == "icon_watch":
+				self.icon(sfile,device="watch")
 			elif method == "launch_image":
 				sfiles = sfile.split(':')
 				svg_bg = sfiles[0]
@@ -435,13 +437,13 @@ class RiOS(RBase):
 		out_file = RiOS.out_path_from_out_name_pdf(output_folder, svg_file, out_name)
 		return self.r.svg2pdf(in_file, out_file)
 
-	def icon(self, svg_file):
+	def icon(self,svg_file,device=None):
 		#default_xcassets = os.path.join(self.path_ios_resources,"Images.xcassets")
 		#self.r.svg2appiconset(svg_file, default_xcassets)
 		xcassets = self.paths_ios_assets
 		if xcassets is not None:
 			for xc in xcassets:
-				self.r.svg2appiconset(svg_file, xc)
+				self.r.svg2appiconset(svg_file, xc, device=device)
 				#if xc != default_xcassets:
 				#self.r.svg2appiconset(svg_file, xc)
 
