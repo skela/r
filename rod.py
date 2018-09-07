@@ -491,7 +491,7 @@ class Rod(object):
 		output_folder = Rod.override_rod_setting_if_exists(d, output_folder, 'OUTPUT', 'path')
 		input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
 		platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'value').lower()
-		densities = Rod.override_rod_setting_if_exists(d, "xhdpi", 'DENSITIES', 'value').lower()
+		densities = Rod.override_rod_setting_if_exists(d, "hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi", 'DENSITIES', 'value').lower()
 
 		assets_folders = []
 		xc_assets = Rod.read_projects(d, 'XCASSETS')
@@ -503,9 +503,9 @@ class Rod(object):
 		elif assets_folder is not None:
 			assets_folders.append(assets_folder)
 
-		if assets_folder is None:
+		if platform == "ios" and assets_folder is None:
 			exit("Failed to locate assets folder")
-		if output_folder is None:
+		if platform == "ios" and output_folder is None:
 			exit("Failed to locate xcode resources/images folder")
 
 		xc_projects = Rod.read_projects(d, 'XCPROJ')
@@ -535,7 +535,7 @@ class Rod(object):
 				for xproj in xc_projects:
 					print '  %s' % xproj
 			else:
-				if len(cs_projects) == 0:
+				if platform == "ios" and len(cs_projects) == 0:
 					print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
 			print ''
 
