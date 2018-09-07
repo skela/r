@@ -195,8 +195,9 @@ class R(object):
         in_file = os.path.abspath(in_file)
         out_file = os.path.abspath(out_file)
 
-        cmd = self.path_convert + ' ' + in_file
-        cmd = '{} -scale {}x{} {}'.format(cmd, w, h, out_file)
+        cmd = self.path_convert + ' "%s"' % in_file
+        cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
+        
         os.system(cmd)
         return out_file
 
