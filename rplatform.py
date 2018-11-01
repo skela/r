@@ -105,7 +105,7 @@ class RBase(object):
 			if method == "auto":
 				if sfile.endswith(".xcf"):
 					self.xcf2pngs(w, h, sfile, png)
-				elif sfile.endswith(".png"):
+				elif sfile.endswith(".png") or sfile.endswith(".jpg") or sfile.endswith(".jpeg"):
 					self.png2pngs(w, h, sfile, png)
 				else:
 					ret = self.svg2pngs(w, h, sfile, png)
@@ -254,7 +254,16 @@ class RDroid(RBase):
 		self.xcf2png(w_1x, h_1x, svg_file, out_name)
 
 	def svg2pdf(self, svg_file, out_name=None):
-		print "svg2pdf is not supported on android"
+		print("svg2pdf is not supported on android")
+
+	def icon(self,svg_file,device=None):
+		name = os.path.basename(svg_file)
+		altname = name.replace(".svg","_round.svg")
+		folder = os.path.dirname(svg_file)
+		svg_round_file = os.path.join(folder,altname)
+		self.r.svg2android_icons(svg_file,self.path_droid_resources)
+		if os.path.exists(svg_round_file):
+			self.r.svg2android_icons(svg_round_file,self.path_droid_resources,round=True)
 
 
 class ImageSetUnit(object):

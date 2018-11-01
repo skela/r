@@ -617,18 +617,20 @@ class R(object):
             cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
             os.system(cmd)
 
-    def svg2android_icons(self, svg_file, target):
+    def svg2android_icons(self, svg_file, target, round=False):
         icon_sizes = [
-            (36, 36, "drawable-ldpi"),
-            (48, 48, "drawable-mdpi"),
-            (72, 72, "drawable-hdpi"),
-            (96, 96, "drawable-xhdpi"),
-            (144, 144, "drawable-xxhdpi"),
-            (192, 192, "drawable-xxxhdpi")
+            (36, 36, "mipmap-ldpi"),
+            (48, 48, "mipmap-mdpi"),
+            (72, 72, "mipmap-hdpi"),
+            (96, 96, "mipmap-xhdpi"),
+            (144, 144, "mipmap-xxhdpi"),
+            (192, 192, "mipmap-xxxhdpi")
         ]
 
         resources_folder = target
         icon_name = 'ic_launcher.png'
+        if round:
+             icon_name = 'ic_launcher_round.png'
         if target.endswith('.png'):
             icon_name = os.path.basename(target)
             resources_folder = resources_folder.replace(icon_name, '')
