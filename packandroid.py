@@ -5,6 +5,7 @@ import xmltodict  # sudo easy_install xmltodict
 import subprocess
 import zipfile
 
+
 class PackAndroid(object):
 
     def __init__(self, root, project_folder, project, input_apk, destination, keystore, keystore_alias, apk_name=None, zipalign=None, jarsigner=None, configuration='Release', keystore_password=None):

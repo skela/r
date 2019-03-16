@@ -3,8 +3,10 @@ import os
 import argparse
 import xmltodict
 
-from rplatform import RiOS
-from rplatform import RDroid
+from platform.base import RBase
+from platform.flutter import RFlutter
+from platform.ios import RiOS
+from platform.droid import RDroid
 from r import R
 
 
@@ -17,7 +19,7 @@ class RodFolderReference(object):
 		self.ignores = c[3:len(c)]
 
 	def __str__(self):
-		return "%s -> %s" % (self.path,self.name)
+		return "%s -> %s" % (self.path, self.name)
 
 
 class Rod(object):
@@ -97,6 +99,10 @@ class Rod(object):
 			rd = RDroid(output_folder, self.path_inkscape, self.path_convert)
 			rd.set_densities(densities)
 			return rd
+		if platform == "flutter":
+			rd = RFlutter(output_folder, self.path_inkscape, self.path_convert)
+			rd.set_densities(densities)
+			return rd
 		ri = RiOS(output_folder, self.path_inkscape, self.path_convert)
 		ri.set_ios_assets(output_assets_folders)
 		return ri
@@ -132,7 +138,7 @@ class Rod(object):
 			a_file_path = os.path.join(img_folder, a_file)
 			res = project.add_file_if_doesnt_exist(a_file_path, group)
 			if len(res) > 0:
-				print 'Adding new file - %s' % res
+				print('Adding new file - %s' % res)
 
 		project.save()
 
@@ -237,13 +243,13 @@ class Rod(object):
 
 		def handle_ios_resource_folder_references(bundle_resource_group,folders,resource_folder):
 			if bundle_resource_group is None:
-				print "Warning: Failed to locate iOS %s group for %s" % (resource_folder,os.path.basename(cs_proj))
+				print("Warning: Failed to locate iOS %s group for %s" % (resource_folder,os.path.basename(cs_proj)))
 				return
 			handle_resource_folder_references(bundle_resource_group,folders,resource_folder)
 
 		def handle_android_resource_folder_references(bundle_resource_group,folders,resource_folder):
 			if bundle_resource_group is None:
-				print "Warning: Failed to locate Android %s group for %s" % (resource_folder,os.path.basename(cs_proj))
+				print("Warning: Failed to locate Android %s group for %s" % (resource_folder,os.path.basename(cs_proj)))
 				return
 			handle_resource_folder_references(bundle_resource_group,folders,resource_folder)
 
@@ -444,17 +450,17 @@ class Rod(object):
 		rod_file = os.path.join(folder_path, self.rodfile)
 		if os.path.exists(rod_file):
 			if os.path.isfile(rod_file):
-				print '[!] Existing Rodfile found in directory'
+				print('[!] Existing Rodfile found in directory')
 			else:
 				exit("Folder with the name Rodfile detected - This should be a file")
 		else:
 
-			c = RiOS.create_run_file_header()
+			c = RBase.create_run_file_header()
 			f = open(rod_file, 'w')
 			f.write(c)
 			f.close()
 
-			print '[*] Rodfile created successfully'
+			print('[*] Rodfile created successfully')
 
 	def update(self):
 		(xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders) = self.check(should_print_map=False)
@@ -492,6 +498,8 @@ class Rod(object):
 		input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
 		platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'value').lower()
 		densities = Rod.override_rod_setting_if_exists(d, "hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi", 'DENSITIES', 'value').lower()
+		if platform == "flutter":
+			densities = Rod.override_rod_setting_if_exists(d, "1.0,2.0,3.0", 'DENSITIES', 'value').lower()
 
 		assets_folders = []
 		xc_assets = Rod.read_projects(d, 'XCASSETS')
@@ -516,40 +524,41 @@ class Rod(object):
 				xc_projects.append(xcodeproj)
 
 		if should_print_map:
-			print '> Image Output folder maps to %s' % output_folder
+			print('> Image Output folder maps to %s' % output_folder)
 			if platform == "ios":
-				print '> Image Assets Output folders map to: '
+				print('> Image Assets Output folders map to: ')
 				for assf in assets_folders:
-					print '  %s' % assf
-			print '> Res Input folder maps to %s' % input_folder
-			print '> Platform system to use %s' % platform
-			if platform == "android" or platform == "droid":
-				print '> Densities to use %s' % densities
-			print ''
+					print('  %s' % assf)
+			print('> Res Input folder maps to %s' % input_folder)
+			print('> Platform system to use %s' % platform)
+			if platform == "android" or platform == "droid" or platform == "flutter":
+				print('> Densities to use %s' % densities)
+			print('')
 
-			print "> inkscape maps to: %s" % r.path_inkscape
-			print "> convert maps to: %s" % r.path_convert
+			print("> inkscape maps to: %s" % r.path_inkscape)
+			print("> convert maps to: %s" % r.path_convert)
 
 			if len(xc_projects) > 0:
-				print '> xcodeproj maps to: '
+				print('> xcodeproj maps to: ')
 				for xproj in xc_projects:
-					print '  %s' % xproj
+					print('  %s' % xproj)
 			else:
 				if platform == "ios" and len(cs_projects) == 0:
-					print "Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path
-			print ''
+					print("Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path)
+			print('')
 
 			if len(cs_projects) > 0:
-				print '> csproj maps to: '
+				print('> csproj maps to: ')
 				for cs_proj in cs_projects:
-					print '  %s' % cs_proj
+					print('  %s' % cs_proj)
 
 			if len(folders) > 0:
-				print '> folder references: '
+				print('> folder references: ')
 				for folder in folders:
-					print '  %s' % folder
+					print('  %s' % folder)
 
 		return xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -580,9 +589,9 @@ if __name__ == "__main__":
 			rod.update()
 		elif args.check:
 			if len(rodfiles) > 1:
-				print "Rod file : %s" % rodfile
+				print("Rod file : %s" % rodfile)
 			rod.check(should_print_map=True)
-			print ""
+			print("")
 		elif args.repopulate:
 			rod.update_projects()
 		else:

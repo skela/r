@@ -9,6 +9,7 @@ import os
 import json
 from decimal import Decimal
 
+
 class AppIconSize(object):
 
         def __init__(self,size,idiom,scales=[1,2,3],role=None,subtype=None):
@@ -59,7 +60,7 @@ class RUtils(object):
         colorstring = colorstring.strip()
         if colorstring[0] == '#': colorstring = colorstring[1:]
         if len(colorstring) != 6:
-            raise ValueError, "input #%s is not in #RRGGBB format" % colorstring
+            raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
         r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
         r, g, b = [int(n, 16) for n in (r, g, b)]
         return "(%d,%d,%d)" % (r, g, b)
@@ -154,7 +155,6 @@ class R(object):
         cmd = self.path_convert
         cmd = cmd.replace("convert", "composite")
         cmd = "%s -gravity center -compose src-over %s %s %s" % (cmd, png_file1, png_file2, result)
-        print cmd
         os.system(cmd)
 
     def svg2png(self, width, height, png_file, svg_file, options=None):
