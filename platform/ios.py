@@ -144,7 +144,7 @@ class RiOS(RBase):
 
 		return moved_img_paths
 
-	def png2pngs(self, w_1x, h_1x, png_file, out_name=None, use_assets=False):
+	def png2pngs(self, w_1x, h_1x, png_file, out_name=None, use_assets=True):
 		in_file = png_file
 		out_file = RiOS.out_path_from_out_name(self.path_ios_resources, png_file, out_name)
 		out = self.r.png2pngs_r(w_1x, h_1x, out_file, in_file)
@@ -152,7 +152,7 @@ class RiOS(RBase):
 			out = self.create_image_assets_folders_and_move_images_there(out,self.path_ios_resources,self.paths_ios_assets)
 		return out
 
-	def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None, use_assets=False):
+	def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None, use_assets=True):
 		in_file = svg_file
 		out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
 		out = self.r.svg2pngs(w_1x, h_1x, out_file, in_file)
@@ -165,7 +165,7 @@ class RiOS(RBase):
 		out_file = RiOS.out_path_from_out_name(self.path_ios_resources, svg_file, out_name)
 		return self.r.svg2png(w_1x, h_1x, out_file, in_file)
 
-	def xcf2pngs(self, w_1x, h_1x, xcf_file, out_name=None, use_assets=False):
+	def xcf2pngs(self, w_1x, h_1x, xcf_file, out_name=None, use_assets=True):
 		in_file = xcf_file
 		out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
 		out = self.r.xcf2pngs(w_1x, h_1x, out_file, in_file)

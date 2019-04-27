@@ -26,6 +26,8 @@ class RDroid(RBase):
 			icon_name = os.path.basename(svg_file)
 			o_name = icon_name.replace('.svg', '.png')
 		out_path = os.path.join(dr, o_name)
+		if not os.path.exists(dr):
+			os.mkdir(dr)
 		return out_path
 
 	def ic_menu_icon(self, svg_file, out_name=None):

@@ -429,7 +429,7 @@ class R(object):
 
         d["images"] = images
 
-        f = file(tmp_folder + 'Contents.json', "w")
+        f = open(tmp_folder + 'Contents.json', "w")
         js = json.dumps(d)
         f.write(js)
         f.close()
