@@ -88,13 +88,21 @@ class RConfig(object):
         return False
 
     @staticmethod
+    def inkscape_version(path_inkscape):
+        if "/Applications/Inkscape.app/Contents/MacOS/Inkscape":
+            return 1.0
+        return 0.9
+
+    @staticmethod
     def setup_path_to_inkscape(path_inkscape):
         path = path_inkscape
         if path_inkscape is None:
             if RConfig.is_mac():
                 path = "/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
                 if not os.path.exists(path):
-                    path = "/opt/local/bin/inkscape"
+                    path = "/Applications/Inkscape.app/Contents/MacOS/Inkscape"
+                if not os.path.exists(path):
+                    path = "/opt/local/bin/inkscape"                
                 if not os.path.exists(path):
                     path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
@@ -166,24 +174,37 @@ class R(object):
         if not isinstance(height, str) and h is not None:
             h = str(height)
 
+        if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
+            w = str(int(float(w)))
+            h = str(int(float(h)))
+
         svg_path = os.path.abspath(svg_file)
         png_path = os.path.abspath(png_file)
 
-        cmd = self.path_inkscape + ' --without-gui --file="%s"' % svg_path
+        cmd = self.path_inkscape
+        export_cmd = ' --export-png="'
+        if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
+            cmd += ' --without-gui "%s"' % svg_path
+            export_cmd = ' --export-file="'
+        else:
+            cmd += ' --without-gui --file="%s"' % svg_path
         cmd += " --export-background-opacity=0"
         if options is not None:
             cmd = cmd + " " + options
         if h is None:
-            cmd = cmd + ' --export-png="' + png_path + '" --export-width=' + w
+            cmd = cmd + export_cmd + png_path + '" --export-width=' + w
         else:
-            cmd = cmd + ' --export-png="' + png_path + '" --export-width=' + w + ' --export-height=' + h        
+            cmd = cmd + export_cmd + png_path + '" --export-width=' + w + ' --export-height=' + h        
         os.system(cmd)
 
         return png_path
 
-    def svg2pdf(self, svg_file, pdf_file):
-        # cmd = self.path_svg2pdf + " %s %s" % (svg_file, pdf_file)
-        cmd = self.path_inkscape + ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file, pdf_file)
+    def svg2pdf(self, svg_file, pdf_file):        
+        cmd = self.path_inkscape
+        if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
+            cmd += ' --without-gui "%s" --export-background-opacity=0 --export-file="%s"' % (svg_file, pdf_file)
+        else:
+            cmd += ' --without-gui --file="%s" --export-background-opacity=0 --export-pdf="%s"' % (svg_file, pdf_file)
         os.system(cmd)
         return pdf_file
 
