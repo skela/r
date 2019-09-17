@@ -145,7 +145,7 @@ class RBase(object):
 
 	@staticmethod
 	def create_run_file_header():
-		c = '''Resource Ordnance Declaration File
+		c = '''#Resource Ordnance Declaration File
 # Download ROD here https://github.com/skela/r
 # To run this `rod -u` 
 #
