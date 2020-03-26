@@ -385,7 +385,7 @@ class R(object):
         for icon_size in icon_sizes:
             icon_name = icon_names[i]
             icon_size = str(icon_size)
-            self.svg2png(icon_size, icon_size, tmp_folder + 'icon_' + icon_name + '.png', icon_svg)
+            self.svg2png(icon_size, icon_size, os.path.join(tmp_folder, 'icon_' + icon_name + '.png'), icon_svg)
             i += 1
 
         cmd = 'iconutil -c icns ' + tmp_folder + ' --output ' + icon_icns
@@ -473,7 +473,7 @@ class R(object):
                 images.append(defs)
 
         d["images"] = images
-
+        
         f = open(os.path.join(tmp_folder,'Contents.json'), "w")
         js = json.dumps(d)
         f.write(js)
@@ -482,13 +482,13 @@ class R(object):
         dest_folder = destination
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'AppIcon.appiconset/'):
-                os.system('rm -fdr ' + destination_folder + 'AppIcon.appiconset/')
-            cmd = "mv %s %s" % (tmp_folder, destination_folder)
+            destination_folder = os.path.join(dest_folder, 'AppIcon.appiconset')
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
+            cmd = "mv %s %s" % (tmp_folder, destination_folder)            
             os.system(cmd)
         else:
-            cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
+            cmd = "mv %s %s" % (tmp_root_folder, dest_folder)            
             os.system(cmd)
 
     def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=True, for_ipad=True):
@@ -577,9 +577,9 @@ class R(object):
         dest_folder = os.path.join(destination, 'Images.xcassets')
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'LaunchImage.launchimage/'):
-                os.system('rm -fdr ' + destination_folder + 'LaunchImage.launchimage/')
+            destination_folder = os.path.join(dest_folder, "LaunchImage.launchimage")
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
             cmd = "mv %s %s" % (tmp_folder, destination_folder)
             os.system(cmd)
         else:
@@ -661,9 +661,9 @@ class R(object):
         dest_folder = os.path.join(destination, 'Images.xcassets')
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'LaunchImage.launchimage/'):
-                os.system('rm -fdr ' + destination_folder + 'LaunchImage.launchimage/')
+            destination_folder = os.path.join(dest_folder, "LaunchImage.launchimage")
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
             cmd = "mv %s %s" % (tmp_folder, destination_folder)
             os.system(cmd)
         else:
