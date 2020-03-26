@@ -485,10 +485,8 @@ class Rod(object):
 		assets_folder = Rod.locate_image_assets_folder(folder_path, xcodeproj)
 
 		r = R(self.path_inkscape, self.path_convert)
-		if os.path.exists(r.path_inkscape) is False:
-			exit("Failed to locate inkscape (%s does not exist)" % r.path_inkscape)
-		if os.path.exists(r.path_convert) is False:
-			exit("Failed to locate image magick (%s does not exist)" % r.path_convert)
+		r.check_for_inkscape()
+		r.check_for_convert()
 
 		folders = Rod.read_rod_folder_references(self.rodfile)
 

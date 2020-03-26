@@ -8,7 +8,7 @@ import sys
 import os
 import json
 from decimal import Decimal
-
+from shutil import which
 
 class AppIconSize(object):
 
@@ -107,6 +107,8 @@ class RConfig(object):
                     path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
                 path = "/usr/bin/inkscape"
+                if not os.path.exists(path):
+                    path = "org.inkscape.Inkscape"
             if RConfig.is_windows():
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
@@ -154,6 +156,21 @@ class R(object):
         self.path_inkscape = RConfig.setup_path_to_inkscape(path_inkscape)
         self.path_convert = RConfig.setup_path_to_convert(path_convert)
         self.path_svg2pdf = RConfig.setup_path_to_svg2pdf(path_svg2pdf)
+
+    @staticmethod
+    def has_tool(name):        
+        return which(name) is not None
+
+    def check_for_inkscape(self):        
+        if "/" in self.path_inkscape:
+            if os.path.exists(self.path_inkscape) is False:
+                exit("Failed to locate inkscape (%s does not exist)" % self.path_inkscape)
+        elif not R.has_tool(self.path_inkscape):            
+            exit("Failed to locate inkscape (%s does not exist)" % self.path_inkscape)
+
+    def check_for_convert(self):
+        if os.path.exists(self.path_convert) is False:
+            exit("Failed to locate image magick (%s does not exist)" % self.path_convert)
 
     def add_png_to_png(self, png_file1, png_file2, png_file_result=None):
         result = png_file_result
