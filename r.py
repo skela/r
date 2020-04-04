@@ -9,6 +9,7 @@ import os
 import json
 from decimal import Decimal
 from shutil import which
+from rlock import RLock
 
 class AppIconSize(object):
 
@@ -156,6 +157,7 @@ class R(object):
         self.path_inkscape = RConfig.setup_path_to_inkscape(path_inkscape)
         self.path_convert = RConfig.setup_path_to_convert(path_convert)
         self.path_svg2pdf = RConfig.setup_path_to_svg2pdf(path_svg2pdf)
+        self.lock = RLock()
 
     @staticmethod
     def has_tool(name):        
@@ -198,6 +200,9 @@ class R(object):
         svg_path = os.path.abspath(svg_file)
         png_path = os.path.abspath(png_file)
 
+        if self.lock.check_for_skippage("svg2png", width, height, svg_path, png_path):
+            return None
+
         cmd = self.path_inkscape
         export_cmd = ' --export-png="'
         if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
@@ -213,6 +218,8 @@ class R(object):
         else:
             cmd = cmd + export_cmd + png_path + '" --export-width=' + w + ' --export-height=' + h        
         os.system(cmd)
+
+        self.lock.update("svg2png", width, height, svg_path, png_path)
 
         return png_path
 

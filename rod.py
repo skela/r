@@ -570,7 +570,7 @@ if __name__ == "__main__":
 	rodfiles = []
 	if args.rodfile is None:
 		for n in os.listdir(os.curdir):
-			if n.startswith("Rodfile"):
+			if n.startswith("Rodfile") and not n.endswith(".locked"):
 				rodfiles.append(n)
 		if len(rodfiles) == 0:
 			rodfiles.append("Rodfile")
