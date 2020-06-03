@@ -19,8 +19,8 @@ class AppIconSize(object):
             self.role = role
             self.subtype = subtype
 
-        def get_dim_string(self):
-            if Decimal(self.size)._isinteger():
+        def get_dim_string(self):            
+            if Decimal(self.size) % 1 == 0:
                 return "%dx%d" % (self.size, self.size)
             else:
                 return "%gx%g" % (self.size, self.size)
