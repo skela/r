@@ -8,7 +8,8 @@ import sys
 import os
 import json
 from decimal import Decimal
-
+from shutil import which
+from rlock import RLock
 
 class AppIconSize(object):
 
@@ -36,7 +37,7 @@ class AppIconSize(object):
 
         def get_definition(self,scale):
             dim_string = self.get_dim_string()
-            file_name = self.get_file_name(scale)
+            file_name = self.get_file_name(scale)            
             defs = {"size": dim_string, "idiom": self.idiom, "filename": file_name, "scale": "%dx" % scale}
             if self.role is not None:
                 defs["role"] = self.role
@@ -107,6 +108,8 @@ class RConfig(object):
                     path = "/usr/local/bin/inkscape"
             if RConfig.is_linux():
                 path = "/usr/bin/inkscape"
+                if not os.path.exists(path):
+                    path = "org.inkscape.Inkscape"
             if RConfig.is_windows():
                 exit("Unsupported operating system, please type format c: in the command prompt")
         else:
@@ -154,6 +157,22 @@ class R(object):
         self.path_inkscape = RConfig.setup_path_to_inkscape(path_inkscape)
         self.path_convert = RConfig.setup_path_to_convert(path_convert)
         self.path_svg2pdf = RConfig.setup_path_to_svg2pdf(path_svg2pdf)
+        self.lock = RLock()
+
+    @staticmethod
+    def has_tool(name):        
+        return which(name) is not None
+
+    def check_for_inkscape(self):        
+        if "/" in self.path_inkscape:
+            if os.path.exists(self.path_inkscape) is False:
+                exit("Failed to locate inkscape (%s does not exist)" % self.path_inkscape)
+        elif not R.has_tool(self.path_inkscape):            
+            exit("Failed to locate inkscape (%s does not exist)" % self.path_inkscape)
+
+    def check_for_convert(self):
+        if os.path.exists(self.path_convert) is False:
+            exit("Failed to locate image magick (%s does not exist)" % self.path_convert)
 
     def add_png_to_png(self, png_file1, png_file2, png_file_result=None):
         result = png_file_result
@@ -181,6 +200,9 @@ class R(object):
         svg_path = os.path.abspath(svg_file)
         png_path = os.path.abspath(png_file)
 
+        if self.lock.check_for_skippage("svg2png", width, height, svg_path, png_path):
+            return None
+
         cmd = self.path_inkscape
         export_cmd = ' --export-png="'
         if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
@@ -196,6 +218,8 @@ class R(object):
         else:
             cmd = cmd + export_cmd + png_path + '" --export-width=' + w + ' --export-height=' + h        
         os.system(cmd)
+
+        self.lock.update("svg2png", width, height, svg_path, png_path)
 
         return png_path
 
@@ -354,7 +378,10 @@ class R(object):
         icon_sizes = [16, 32, 32, 64, 128, 256, 256, 512, 512, 1024]
         icon_names = ['16x16', '16x16@2x', '32x32', '32x32@2x', '128x128', '128x128@2x', '256x256', '256x256@2x', '512x512', '512x512@2x']
 
-        tmp_folder = '/tmp/r_icon.iconset/'
+        tmp = os.path.join(os.getcwd(),".tmpROD")
+        if not os.path.exists(tmp):
+            os.mkdir(tmp)
+        tmp_folder = os.path.join(tmp, 'r_icon.iconset')
 
         cmd = 'rm -fdr ' + tmp_folder
         os.system(cmd)
@@ -365,7 +392,7 @@ class R(object):
         for icon_size in icon_sizes:
             icon_name = icon_names[i]
             icon_size = str(icon_size)
-            self.svg2png(icon_size, icon_size, tmp_folder + 'icon_' + icon_name + '.png', icon_svg)
+            self.svg2png(icon_size, icon_size, os.path.join(tmp_folder, 'icon_' + icon_name + '.png'), icon_svg)
             i += 1
 
         cmd = 'iconutil -c icns ' + tmp_folder + ' --output ' + icon_icns
@@ -408,9 +435,13 @@ class R(object):
                 AppIconSize(98,"watch",scales=[2],role="quickLook",subtype="42mm"),
                 AppIconSize(1024,"watch-marketing",scales=[1]),
             ]
+        
+        tmp = os.path.join(os.getcwd(),".tmpROD")        
+        if not os.path.exists(tmp):
+            os.mkdir(tmp)
 
-        tmp_root_folder = '/tmp/r_icon.xcassets/'
-        tmp_folder = tmp_root_folder + 'AppIcon.appiconset/'
+        tmp_root_folder = os.path.join(tmp, 'r_icon.xcassets')        
+        tmp_folder = os.path.join(tmp_root_folder, 'AppIcon.appiconset')
 
         os.system('rm -fdr ' + tmp_root_folder)
 
@@ -433,24 +464,24 @@ class R(object):
             if 1 in ics.scales:
                 file_name = ics.get_file_name(1)
                 defs = ics.get_definition(1)
-                self.svg2png(wh, wh, tmp_folder + file_name, icon_svg)
+                self.svg2png(wh, wh, os.path.join(tmp_folder, file_name), icon_svg)
                 images.append(defs)
             
             if 2 in ics.scales:
                 file_name = ics.get_file_name(2)
                 defs = ics.get_definition(2)
-                self.svg2png(wh2, wh2, tmp_folder + file_name, icon_svg)
+                self.svg2png(wh2, wh2, os.path.join(tmp_folder, file_name), icon_svg)
                 images.append(defs)
             
             if 3 in ics.scales:
                 file_name = ics.get_file_name(3)
                 defs = ics.get_definition(3)
-                self.svg2png(wh3, wh3, tmp_folder + file_name, icon_svg)
+                self.svg2png(wh3, wh3, os.path.join(tmp_folder, file_name), icon_svg)
                 images.append(defs)
 
         d["images"] = images
-
-        f = open(tmp_folder + 'Contents.json', "w")
+        
+        f = open(os.path.join(tmp_folder,'Contents.json'), "w")
         js = json.dumps(d)
         f.write(js)
         f.close()
@@ -458,13 +489,13 @@ class R(object):
         dest_folder = destination
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'AppIcon.appiconset/'):
-                os.system('rm -fdr ' + destination_folder + 'AppIcon.appiconset/')
-            cmd = "mv %s %s" % (tmp_folder, destination_folder)
+            destination_folder = os.path.join(dest_folder, 'AppIcon.appiconset')
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
+            cmd = "mv %s %s" % (tmp_folder, destination_folder)            
             os.system(cmd)
         else:
-            cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
+            cmd = "mv %s %s" % (tmp_root_folder, dest_folder)            
             os.system(cmd)
 
     def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=True, for_ipad=True):
@@ -489,16 +520,20 @@ class R(object):
             ]
             icon_sizes.extend(icsp)
 
-        tmp_root_folder = '/tmp/r_icon.xcassets/'
-        tmp_folder = tmp_root_folder + 'LaunchImage.launchimage/'
+        tmp = os.path.join(os.getcwd(),".tmpROD")
+        if not os.path.exists(tmp):
+            os.mkdir(tmp)
+
+        tmp_root_folder = os.path.join(tmp,'r_icon.xcassets')
+        tmp_folder = os.path.join(tmp_root_folder,'LaunchImage.launchimage')
 
         os.system('rm -fdr ' + tmp_root_folder)
 
         os.mkdir(tmp_root_folder)
         os.mkdir(tmp_folder)
 
-        logo_img_1x = self.svg2png(svg_centred_size_1x[0], svg_centred_size_1x[1], tmp_folder + 'logo1.png', svg_centred)
-        logo_img_2x = self.svg2png(svg_centred_size_1x[0]*2, svg_centred_size_1x[1]*2, tmp_folder + 'logo2.png', svg_centred)
+        logo_img_1x = self.svg2png(svg_centred_size_1x[0], svg_centred_size_1x[1], os.path.join(tmp_folder, 'logo1.png'), svg_centred)
+        logo_img_2x = self.svg2png(svg_centred_size_1x[0]*2, svg_centred_size_1x[1]*2, os.path.join(tmp_folder, 'logo2.png'), svg_centred)
 
         d = {"images": [], "info": {"version": 1, "author": "xcode"}}
 
@@ -522,7 +557,7 @@ class R(object):
             if skip1x is False:
                 icon_name = "%s-%s-%s-%s-1x" % (idiom, o, e, dim_string)
                 file_name = 'launchimg_' + icon_name + '.png'
-                the_img = self.svg2png(w, h, tmp_folder + file_name, svg_bg)
+                the_img = self.svg2png(w, h, os.path.join(tmp_folder, file_name), svg_bg)
                 self.add_png_to_png(logo_img_1x, the_img)
                 img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "1x", "orientation": o, "extent": e}
                 img = dict(img.items() + aux.items())
@@ -530,7 +565,7 @@ class R(object):
 
             icon_name = "%s-%s-%s-%s-2x" % (idiom, o, e, dim_string)
             file_name = 'launchimg_' + icon_name + '.png'
-            the_img = self.svg2png(w2, h2, tmp_folder + file_name, svg_bg)
+            the_img = self.svg2png(w2, h2, os.path.join(tmp_folder, file_name), svg_bg)
             self.add_png_to_png(logo_img_2x, the_img)
             img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x", "orientation": o, "extent": e}
             img = dict(img.items() + aux.items())
@@ -541,7 +576,7 @@ class R(object):
 
         d["images"] = images
 
-        f = file(tmp_folder + 'Contents.json', "w")
+        f = file(os.path.join(tmp_folder, 'Contents.json'), "w")
         js = json.dumps(d)
         f.write(js)
         f.close()
@@ -549,9 +584,9 @@ class R(object):
         dest_folder = os.path.join(destination, 'Images.xcassets')
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'LaunchImage.launchimage/'):
-                os.system('rm -fdr ' + destination_folder + 'LaunchImage.launchimage/')
+            destination_folder = os.path.join(dest_folder, "LaunchImage.launchimage")
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
             cmd = "mv %s %s" % (tmp_folder, destination_folder)
             os.system(cmd)
         else:
@@ -577,8 +612,12 @@ class R(object):
             (1024, 748, "landscape", "ipad", {"extent": "to-status-bar"})
         ]
 
-        tmp_root_folder = '/tmp/r_icon.xcassets/'
-        tmp_folder = tmp_root_folder + 'LaunchImage.launchimage/'
+        tmp = os.path.join(os.getcwd(),".tmpROD")
+        if not os.path.exists(tmp):
+            os.mkdir(tmp)
+
+        tmp_root_folder = os.path.join(tmp,'r_icon.xcassets')
+        tmp_folder = os.path.join(tmp_root_folder, 'LaunchImage.launchimage')
 
         os.system('rm -fdr ' + tmp_root_folder)
 
@@ -607,21 +646,21 @@ class R(object):
             if skip1x is False:
                 icon_name = "%s-%s-%s-%s-1x" % (idiom, o, e, dim_string)
                 file_name = 'launchimg_' + icon_name + '.png'
-                self.svg2png(w, h, tmp_folder + file_name, launch_svg)
+                self.svg2png(w, h, os.path.join(tmp_folder, file_name), launch_svg)
                 img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "1x", "orientation": o, "extent": e}
                 img = dict(img.items() + aux.items())
                 images.append(img)
 
             icon_name = "%s-%s-%s-%s-2x" % (idiom, o, e, dim_string)
             file_name = 'launchimg_' + icon_name + '.png'
-            self.svg2png(w2, h2, tmp_folder + file_name, launch_svg)
+            self.svg2png(w2, h2, os.path.join(tmp_folder, file_name), launch_svg)
             img = {"size": dim_string, "idiom": idiom, "filename": file_name, "scale": "2x", "orientation": o, "extent": e}
             img = dict(img.items() + aux.items())
             images.append(img)
 
         d["images"] = images
 
-        f = file(tmp_folder + 'Contents.json', "w")
+        f = file(os.path.join(tmp_folder, 'Contents.json'), "w")
         js = json.dumps(d)
         f.write(js)
         f.close()
@@ -629,9 +668,9 @@ class R(object):
         dest_folder = os.path.join(destination, 'Images.xcassets')
 
         if os.path.isdir(dest_folder):
-            destination_folder = dest_folder + '/'
-            if os.path.isdir(destination_folder + 'LaunchImage.launchimage/'):
-                os.system('rm -fdr ' + destination_folder + 'LaunchImage.launchimage/')
+            destination_folder = os.path.join(dest_folder, "LaunchImage.launchimage")
+            if os.path.isdir(destination_folder):
+                os.system('rm -fdr ' + destination_folder)
             cmd = "mv %s %s" % (tmp_folder, destination_folder)
             os.system(cmd)
         else:
@@ -656,7 +695,11 @@ class R(object):
             icon_name = os.path.basename(target)
             resources_folder = resources_folder.replace(icon_name, '')
 
-        tmp_root_folder = '/tmp/r_icons.droid/'
+        tmp = os.path.join(os.getcwd(),".tmpROD")
+        if not os.path.exists(tmp):
+            os.mkdir(tmp)
+
+        tmp_root_folder = os.path.join(tmp,'r_icons.droid')
         os.system('rm -fdr ' + tmp_root_folder)
         os.mkdir(tmp_root_folder)
 
