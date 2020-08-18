@@ -536,11 +536,7 @@ class Rod(object):
 
 		if xcodeproj is not None:
 			if xcodeproj not in xc_projects:
-				xc_projects.append(xcodeproj)
-			if should_update_xcode_proj:
-				print('> Should update xcode projects: Yes')
-			else:
-				print('> Should update xcode projects: No')
+				xc_projects.append(xcodeproj)			
 
 		if should_print_map:
 			print('> Image Output folder maps to %s' % output_folder)
@@ -561,6 +557,10 @@ class Rod(object):
 				print('> xcodeproj maps to: ')
 				for xproj in xc_projects:
 					print('  %s' % xproj)
+				if should_update_xcode_proj:
+					print('> Should update xcode projects: Yes')
+				else:
+					print('> Should update xcode projects: No')
 			else:
 				if platform == "ios" and len(cs_projects) == 0:
 					print("Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path)
