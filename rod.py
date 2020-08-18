@@ -22,6 +22,19 @@ class RodFolderReference(object):
 		return "%s -> %s" % (self.path, self.name)
 
 
+class RodSettings(object):
+
+	def __init__(self,xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj):
+		self.xcode_projects = xcode_projects
+		self.img_folder = img_folder
+		self.input_folder = input_folder
+		self.assets_folders = assets_folders
+		self.cs_projects = cs_projects
+		self.platform = platform
+		self.densities = densities
+		self.folders = folders
+		self.should_update_xcode_proj = should_update_xcode_proj
+
 class Rod(object):
 
 	def __init__(self, rod_file="Rodfile", path_inkscape=None, path_convert=None):
@@ -428,7 +441,9 @@ class Rod(object):
 			if value_type == 'path':
 				if val.startswith('.'):
 					val = os.path.abspath(val)
-			return val
+			if value_type == 'bool':
+				return True
+			return val		
 		return current
 
 	@staticmethod
@@ -463,19 +478,20 @@ class Rod(object):
 			print('[*] Rodfile created successfully')
 
 	def update(self):
-		(xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders) = self.check(should_print_map=False)
-		if input_folder is not None:
-			self.regenerate_resources(input_folder, img_folder, assets_folders, platform, densities)
+		s = self.check(should_print_map=False)
+		if s.input_folder is not None:
+			self.regenerate_resources(s.input_folder, s.img_folder, s.assets_folders, s.platform, s.densities)
 		self.update_projects()
 
 	def update_projects(self):
-		(xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders) = self.check(should_print_map=False)		
-		for csproj in cs_projects:
-			Rod.update_cs_project(csproj, img_folder, platform, folders)
-		for xcodeproj in xcode_projects:
-			Rod.update_xcode_project(xcodeproj, img_folder)
+		s = self.check(should_print_map=False)
+		for csproj in s.cs_projects:
+			Rod.update_cs_project(csproj, s.img_folder, s.platform, s.folders)
+		if s.should_update_xcode_proj:
+			for xcodeproj in s.xcode_projects:
+				Rod.update_xcode_project(xcodeproj, s.img_folder)
 
-	def check(self, should_print_map):
+	def check(self, should_print_map:bool) -> RodSettings:
 		folder_path = os.curdir
 		if folder_path == '.':
 			folder_path = os.path.abspath(folder_path)
@@ -494,6 +510,7 @@ class Rod(object):
 		d = Rod.read_rod_overrides(self.rodfile)
 		output_folder = Rod.override_rod_setting_if_exists(d, output_folder, 'OUTPUT', 'path')
 		input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
+		should_update_xcode_proj = Rod.override_rod_setting_if_exists(d, False, 'XCODE_PROJ_UPDATE', 'bool')
 		platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'value').lower()
 		densities = Rod.override_rod_setting_if_exists(d, "hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi", 'DENSITIES', 'value').lower()
 		if platform == "flutter":
@@ -520,6 +537,10 @@ class Rod(object):
 		if xcodeproj is not None:
 			if xcodeproj not in xc_projects:
 				xc_projects.append(xcodeproj)
+			if should_update_xcode_proj:
+				print('> Should update xcode projects: Yes')
+			else:
+				print('> Should update xcode projects: No')
 
 		if should_print_map:
 			print('> Image Output folder maps to %s' % output_folder)
@@ -555,7 +576,7 @@ class Rod(object):
 				for folder in folders:
 					print('  %s' % folder)
 
-		return xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders
+		return RodSettings(xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj)
 
 
 if __name__ == "__main__":
