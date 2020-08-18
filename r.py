@@ -731,7 +731,9 @@ class R(object):
         if from_color.startswith("#"):
             from_color = RUtils.html_color_to_rgb(from_color)
 
-        cmd = '%s "%s" -channel RGB +level-colors "%s","%s" "%s"' % (self.path_convert, in_path_png, from_color, to_color, out_path_png)        
+        #cmd = '%s "%s" -channel RGB +level-colors "%s","%s" "%s"' % (self.path_convert, in_path_png, from_color, to_color, out_path_png)
+        cmd = f'{self.path_convert} "{in_path_png}" -alpha extract -background "{to_color}" -alpha shape "{out_path_png}"'
+        #print(cmd)
         os.system(cmd)
 
     def convert_color_from_white(self, in_path_png, out_path_png, to_color):
