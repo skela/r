@@ -206,8 +206,8 @@ class R(object):
         cmd = self.path_inkscape
         export_cmd = ' --export-png="'
         if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
-            cmd += ' --without-gui "%s"' % svg_path
-            export_cmd = ' --export-file="'
+            cmd += ' "%s"' % svg_path
+            export_cmd = ' --export-filename="'
         else:
             cmd += ' --without-gui --file="%s"' % svg_path
         cmd += " --export-background-opacity=0"
