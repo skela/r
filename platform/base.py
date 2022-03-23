@@ -90,7 +90,7 @@ class RBase(object):
 			if not succeeded:
 				continue
 
-			if method is not "launch_image":
+			if method != "launch_image":
 				sfile = os.path.join(path_to_resources_folder, sfile)
 				if len(os.path.splitext(sfile)[1]) == 0:
 					sfile += ".svg"
