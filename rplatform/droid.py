@@ -1,7 +1,7 @@
 import os
 
 from r import R, RUtils
-from platform.base import RBase
+from rplatform.base import RBase
 
 
 class RDroid(RBase):

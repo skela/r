@@ -3,10 +3,10 @@ import os
 import argparse
 import xmltodict
 
-from platform.base import RBase
-from platform.flutter import RFlutter
-from platform.ios import RiOS
-from platform.droid import RDroid
+from rplatform.base import RBase
+from rplatform.flutter import RFlutter
+from rplatform.ios import RiOS
+from rplatform.droid import RDroid
 from r import R
 
 

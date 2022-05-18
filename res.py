@@ -1,8 +1,8 @@
 import os
 
-from platform.base import RBase
-from platform.droid import RDroid
-from platform.ios import RiOS
+from rplatform.base import RBase
+from rplatform.droid import RDroid
+from rplatform.ios import RiOS
 
 
 class RResources(RBase):
