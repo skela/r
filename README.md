@@ -19,6 +19,24 @@ More info in help:
 
 `rod -h`
 
+# Using docker
+
+You can also use docker so you don't have to install anything.
+
+```
+image = "skela/rod:latest"
+volumes = [
+	f'-v {os.path.abspath("Rodfile")}:/res/Rodfile',
+	f'-v {os.path.abspath("Rodfile.locked")}:/res/Rodfile.locked',
+	f'-v {os.path.abspath("raw/")}:/res/raw/',
+	f'-v {os.path.abspath("assets/images/")}:/res/assets/images/'		
+]
+volumes = " ".join(map(lambda x: x,volumes))
+command_run = subprocess.call(f"docker run -i {volumes} {image} python3 /rod/rod.py -u -f Rodfile", stderr=subprocess.STDOUT, shell=True)	
+if command_run != 0:
+	exit("Failed to generate images")
+```
+
 # R - r.py
 
 Resource Recipes for converting svg,xcf to png's that can be used by iOS and Android apps.
