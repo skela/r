@@ -1,4 +1,4 @@
-ROD_VERSION=1.0.0
+ROD_VERSION=1.0.1
 
 .PHONY: build
 build:
