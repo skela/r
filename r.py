@@ -449,7 +449,7 @@ class R(object):
         os.mkdir(tmp_folder)
 
         d = {"images": [], "info": {"version": 1, "author": "xcode"}}
-
+        
         images = []
         # legacy_names = {"57": "Icon.png", "114": "Icon@2x.png", "72": "Icon-72.png", "144": "Icon-72@2x.png"}        
         for ics in icon_sizes:
@@ -464,23 +464,23 @@ class R(object):
             if 1 in ics.scales:
                 file_name = ics.get_file_name(1)
                 defs = ics.get_definition(1)
-                self.svg2png(wh, wh, os.path.join(tmp_folder, file_name), icon_svg)
+                self.svg2png(wh, wh, os.path.abspath(os.path.join(tmp_folder, file_name)), icon_svg)
                 images.append(defs)
             
             if 2 in ics.scales:
                 file_name = ics.get_file_name(2)
                 defs = ics.get_definition(2)
-                self.svg2png(wh2, wh2, os.path.join(tmp_folder, file_name), icon_svg)
+                self.svg2png(wh2, wh2, os.path.abspath(os.path.join(tmp_folder, file_name)), icon_svg)
                 images.append(defs)
             
             if 3 in ics.scales:
                 file_name = ics.get_file_name(3)
                 defs = ics.get_definition(3)
-                self.svg2png(wh3, wh3, os.path.join(tmp_folder, file_name), icon_svg)
+                self.svg2png(wh3, wh3, os.path.abspath(os.path.join(tmp_folder, file_name)), icon_svg)
                 images.append(defs)
 
         d["images"] = images
-        
+                
         f = open(os.path.join(tmp_folder,'Contents.json'), "w")
         js = json.dumps(d)
         f.write(js)

@@ -191,8 +191,8 @@ class RiOS(RBase):
 		#self.r.svg2appiconset(svg_file, default_xcassets)
 		xcassets = self.paths_ios_assets
 		if xcassets is not None:
-			for xc in xcassets:
-				self.r.svg2appiconset(svg_file, xc, device=device)
+			for xc in xcassets:				
+				self.r.svg2appiconset(svg_file, os.path.abspath(xc), device=device)
 				#if xc != default_xcassets:
 				#self.r.svg2appiconset(svg_file, xc)
 
