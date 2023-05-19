@@ -262,6 +262,24 @@ class R(object):
         cmd = '{} -background transparent -flatten -scale {}x{} "{}"'.format(cmd, w, h, out_file)
         os.system(cmd)
 
+    def webp2webp(self, width, height, out_file, in_file):
+        w = width
+        h = height
+
+        if not isinstance(width, str):
+            w = str(width)
+        if not isinstance(height, str):
+            h = str(height)
+
+        in_file = os.path.abspath(in_file)
+        out_file = os.path.abspath(out_file)
+
+        cmd = self.path_convert + ' "%s"' % in_file
+        cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
+        
+        os.system(cmd)
+        return out_file
+
     def png2png(self, width, height, out_file, in_file):
         w = width
         h = height

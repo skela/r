@@ -101,6 +101,8 @@ class RBase(object):
 					self.xcf2pngs(w, h, sfile, png)
 				elif sfile.endswith(".png") or sfile.endswith(".jpg") or sfile.endswith(".jpeg"):
 					self.png2pngs(w, h, sfile, png)
+				elif sfile.endswith(".webp"):
+					self.webp2webps(w, h, sfile, png)
 				else:
 					ret = self.svg2pngs(w, h, sfile, png)
 			elif method == "asset":

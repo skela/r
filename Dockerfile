@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:23.04
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV TZ=Europe/London
@@ -9,8 +9,9 @@ RUN rm -rf /var/lib/{apt,dpkg,cache,log}
 WORKDIR /rod
 COPY Pipfile .
 
-RUN python3 -m pip install --upgrade pip setuptools wheel
-RUN python3 -m pip install -r Pipfile 
+#RUN python3 -m pip install --upgrade pip setuptools wheel
+#RUN python3 -m pip install -r Pipfile --break-sys
+RUN apt install python3-xmltodict --yes
 
 RUN mkdir res
 
