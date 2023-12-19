@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+from typing import Optional
 from pathlib import Path
 
 
@@ -9,7 +10,7 @@ class RLock(object):
 	def __init__(self):
 		self.lock_file = os.path.join(os.getcwd(),"Rodfile.locked")
 	
-	def _load_lock_file(self) -> dict:
+	def _load_lock_file(self) -> Optional[dict]:
 		if not os.path.exists(self.lock_file):
 			return None
 		f = open(self.lock_file)
@@ -31,7 +32,7 @@ class RLock(object):
 		key = f"{method}|{width}x{height}|{rel_input}->{rel_output}"
 		return key
 
-	def _create_hash(self, file_path):
+	def _create_hash(self, file_path:str) -> Optional[str]:
 		sha256_hash = hashlib.sha256()
 		with open(file_path,"rb") as f:
 			for byte_block in iter(lambda: f.read(4096),b""):
