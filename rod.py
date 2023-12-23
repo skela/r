@@ -2,6 +2,7 @@
 import os
 import argparse
 import xmltodict
+from collections import OrderedDict
 
 from rplatform.base import RBase
 from rplatform.flutter import RFlutter
@@ -13,7 +14,7 @@ from r import R
 class RodFolderReference(object):
 
 	def __init__(self,line):
-		c = line.split(',')
+		c = line.split(",")
 		self.path = c[1]
 		self.name = c[2]
 		self.ignores = c[3:len(c)]
@@ -56,11 +57,11 @@ class Rod(object):
 
 	@staticmethod
 	def locate_image_assets_folder(folder_full_path, xcode_project_path):
-		res = os.path.join(folder_full_path, 'Images.xcassets')
+		res = os.path.join(folder_full_path, "Images.xcassets")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
-		res = os.path.join(folder_full_path, "Resources", 'Images.xcassets')
+		res = os.path.join(folder_full_path, "Resources", "Images.xcassets")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
@@ -68,11 +69,11 @@ class Rod(object):
 			return None
 		name = os.path.basename(xcode_project_path)
 		name = name.replace(".xcodeproj", "")
-		res = os.path.join(folder_full_path, name, 'Images.xcassets')
+		res = os.path.join(folder_full_path, name, "Images.xcassets")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
-		res = os.path.join(folder_full_path, name, "Resources", 'Images.xcassets')
+		res = os.path.join(folder_full_path, name, "Resources", "Images.xcassets")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
@@ -97,11 +98,11 @@ class Rod(object):
 
 	@staticmethod
 	def locate_input_resources_folder(folder_full_path):
-		res = os.path.join(folder_full_path, 'Resources')
+		res = os.path.join(folder_full_path, "Resources")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
-		res = os.path.join(folder_full_path, 'Res')
+		res = os.path.join(folder_full_path, "Res")
 		if os.path.exists(res):
 			if os.path.isdir(res):
 				return res
@@ -131,12 +132,12 @@ class Rod(object):
 	@staticmethod
 	def update_xcode_project(xcodeproj, img_folder):
 
-		pbxproj = os.path.join(xcodeproj, 'project.pbxproj')
+		pbxproj = os.path.join(xcodeproj, "project.pbxproj")
 
 		from mod_pbxproj import XcodeProject
 		project = XcodeProject.Load(pbxproj)
 
-		groups = project.get_groups_by_name('Images')
+		groups = project.get_groups_by_name("Images")
 		if groups is None or len(groups) == 0:
 			exit("XCode group named Images missing")
 		if len(groups) > 1:
@@ -146,12 +147,12 @@ class Rod(object):
 
 		res_files = os.listdir(img_folder)
 		for a_file in res_files:
-			if a_file.startswith('.'):
+			if a_file.startswith("."):
 				continue
 			a_file_path = os.path.join(img_folder, a_file)
 			res = project.add_file_if_doesnt_exist(a_file_path, group)
 			if len(res) > 0:
-				print('Adding new file - %s' % res)
+				print("Adding new file - %s" % res)
 
 		project.save()
 
@@ -165,7 +166,7 @@ class Rod(object):
 		resources_folder = os.path.join(cs_folder,"Resources")
 		for a_file in os.listdir(resources_folder):
 			if a_file.endswith(".xcassets"):
-				if a_file == 'Images.xcassets':
+				if a_file == "Images.xcassets":
 					xcasset_folders.insert(0,os.path.join(resources_folder,a_file))
 				else:
 					xcasset_folders.append(os.path.join(resources_folder,a_file))
@@ -195,11 +196,11 @@ class Rod(object):
 			files = os.listdir(img_folder)
 			for name in files:
 
-				if name == '.DS_Store':
+				if name == ".DS_Store":
 					continue
-				if name.endswith('.lproj'):
+				if name.endswith(".lproj"):
 					continue
-				if name.endswith('.xcassets'):
+				if name.endswith(".xcassets"):
 					continue
 
 				file_path = os.path.join(rel_path, name)
@@ -207,16 +208,15 @@ class Rod(object):
 				if file_path not in existing_bundle_resources:
 					if not os.path.isdir(file_path):
 						missing_resources.append(name)
-
 			missing_resource_dicts = []
 			for mrname in missing_resources:
 				mrname = add_winshit(mrname)
 				mrpath = posix_to_winshit(os.path.join(rel_path, mrname))
-				mrlink = posix_to_winshit(os.path.join('Resources', mrname))
-				od = xmltodict.OrderedDict()
+				mrlink = posix_to_winshit(os.path.join("Resources", mrname))
+				od = OrderedDict()
 				od["@Include"] = mrpath
 				od["Link"] = mrlink
-				od["#text"] = ''
+				od["#text"] = ""
 				missing_resource_dicts.append(od)
 
 			for d in missing_resource_dicts:
@@ -237,7 +237,7 @@ class Rod(object):
 				bundle_resource_group.remove(bur)
 
 			for folder in folders:
-				for dirName, subdirList, files in os.walk(folder.path,followlinks=True):
+				for dirName, _, files in os.walk(folder.path,followlinks=True):
 					for f in files:
 						if not f.startswith("."):
 							file_rel_path = os.path.join(dirName,f)
@@ -248,10 +248,10 @@ class Rod(object):
 
 								mrpath = posix_to_winshit(file_rel_path)
 								mrlink = posix_to_winshit(file_link_path)
-								od = xmltodict.OrderedDict()
+								od = OrderedDict()
 								od["@Include"] = mrpath
 								od["Link"] = mrlink
-								od["#text"] = ''
+								od["#text"] = ""
 								bundle_resource_group.append(od)
 
 		def handle_ios_resource_folder_references(bundle_resource_group,folders,resource_folder):
@@ -275,18 +275,19 @@ class Rod(object):
 					if imageset_name.endswith(".imageset") or imageset_name.endswith(".appiconset") or imageset_name.endswith(".launchimage"):
 						imageset_folder = os.listdir(os.path.join(catalogue,imageset_name))
 						for imageset_item in imageset_folder:
-							if imageset_item == '.DS_Store':
+							if imageset_item == ".DS_Store":
 								continue
 							include_path = os.path.join("Resources",catalogue_name,imageset_name,imageset_item)
 							include_path = posix_to_winshit(include_path)
 							#<ImageAsset Include="Resources\Flags.xcassets\flag-ecocell-WS.imageset\Contents.json"></ImageAsset>
-							od = xmltodict.OrderedDict()
+							od = OrderedDict()
 							od["@Include"] = include_path
 							things.append(od)
 			return things
 
 		f = open(cs_proj)
-		dom = xmltodict.parse(f, strip_whitespace=True)
+		s = f.read()
+		dom = xmltodict.parse(s, strip_whitespace=True)
 		f.close()
 
 		item_groups = dom['Project']['ItemGroup']
@@ -300,17 +301,17 @@ class Rod(object):
 			for group in item_groups:
 				if group is None:
 					continue
-				if 'Folder' in group:
+				if "Folder" in group:
 					folder_group = group["Folder"]
-				if 'BundleResource' in group:
+				if "BundleResource" in group:
 					bundle_resource_group = group["BundleResource"]
-				if 'ImageAsset' in group:
-					image_asset_group = group['ImageAsset']
+				if "ImageAsset" in group:
+					image_asset_group = group["ImageAsset"]
 
 			assets = add_xcasset_folder_assets(xcasset_folders)
 
 			if image_asset_group is None:
-				od = xmltodict.OrderedDict()
+				od = OrderedDict()
 				od["ImageAsset"] = assets
 				item_groups.insert(len(item_groups) - 1,od)
 			else:
@@ -336,17 +337,17 @@ class Rod(object):
 
 			add_missing_ios_resource_files(bundle_resource_group,ref_folders)
 			if ref_folders is not None and len(ref_folders) > 0:
-				handle_ios_resource_folder_references(bundle_resource_group,ref_folders,'Resources')
+				handle_ios_resource_folder_references(bundle_resource_group,ref_folders,"Resources")
 
 		elif platform == "android" or platform == "droid":
 
 			android_resources_group = None
 			android_assets_group = None
 			for node in item_groups:
-				if 'AndroidResource' in node:
-					android_resources_group = node['AndroidResource']
-				if 'AndroidAsset' in node:
-					android_assets_group = node['AndroidAsset']
+				if "AndroidResource" in node:
+					android_resources_group = node["AndroidResource"]
+				if "AndroidAsset" in node:
+					android_assets_group = node["AndroidAsset"]
 
 			if android_resources_group is None:
 				exit("Android resources group not found - You need at least one item in the Resources folder for the script to identify which is the correct item group")
@@ -354,7 +355,7 @@ class Rod(object):
 			folders = os.listdir(img_folder)
 			for folder in folders:
 
-				if folder == '.DS_Store':
+				if folder == ".DS_Store":
 					continue
 
 				existing_bundle_resources = {}
@@ -369,7 +370,7 @@ class Rod(object):
 				missing_resources = []
 				files = os.listdir(os.path.join(img_folder, folder))
 				for name in files:
-					if name == '.DS_Store':
+					if name == ".DS_Store":
 						continue
 					file_path = os.path.join(rel_path, folder, name)
 					if file_path not in existing_bundle_resources:
@@ -381,10 +382,10 @@ class Rod(object):
 					mrname = add_winshit(mrname)
 					mrpath = posix_to_winshit(os.path.join(rel_path, folder, mrname))
 					mrlink = posix_to_winshit(os.path.join('Resources', folder, mrname))
-					od = xmltodict.OrderedDict()
+					od = OrderedDict()
 					od["@Include"] = mrpath
 					od["Link"] = mrlink
-					od["#text"] = ''
+					od["#text"] = ""
 					missing_resource_dicts.append(od)
 
 				for d in missing_resource_dicts:
@@ -393,13 +394,13 @@ class Rod(object):
 				handle_android_resource_folder_references(android_assets_group,ref_folders,'Assets')
 
 		xml = xmltodict.unparse(dom, pretty=True)
-		with open(cs_proj, 'w') as g:
+		with open(cs_proj, "w") as g:
 			g.write(xml)
 
 	@staticmethod
-	def read_rod_lines(rod_file):
+	def read_rod_lines(rod_file) -> list[str]:
 		folder_path = os.curdir
-		if folder_path == '.':
+		if folder_path == ".":
 			folder_path = os.path.abspath(folder_path)
 		rod_file = os.path.join(folder_path, rod_file)
 
@@ -409,7 +410,7 @@ class Rod(object):
 		return lines
 
 	@staticmethod
-	def read_rod_overrides(rod_file):
+	def read_rod_overrides(rod_file) -> dict:
 		d = {}
 		lines = Rod.read_rod_lines(rod_file)
 		for line in lines:
@@ -424,58 +425,68 @@ class Rod(object):
 		return d
 
 	@staticmethod
-	def read_rod_folder_references(rod_file):
+	def read_rod_folder_references(rod_file) -> list[RodFolderReference]:
 		folders = []
 		lines = Rod.read_rod_lines(rod_file)
 		for line in lines:
-			if line.startswith('resources_folder'):
+			if line.startswith("resources_folder"):
 				folders.append(RodFolderReference(line))
-			if line.startswith('assets_folder'):
+			if line.startswith("assets_folder"):
 				folders.append(RodFolderReference(line))
 		return folders
 
 	@staticmethod
-	def override_rod_setting_if_exists(d, current, key, value_type):
+	def override_rod_setting_if_exists(d, current:str, key:str) -> str:
 		if key in d:
 			val = d[key]
-			if value_type == 'path':
-				if val.startswith('.'):
-					val = os.path.abspath(val)
-			if value_type == 'bool':
-				return True
-			return val		
+			return val
+		return current
+
+	@staticmethod
+	def override_rod_path_setting_if_exists(d, current, key:str):
+		if key in d:
+			val = d[key]
+			if val.startswith('.'):
+				val = os.path.abspath(val)
+			return val
+		return current
+
+	@staticmethod
+	def override_rod_bool_setting_if_exists(d, current:bool, key:str) -> bool:
+		if key in d:
+			return True
 		return current
 
 	@staticmethod
 	def read_projects(d, key):
 		cs = []
 		if key in d:
-			vals = d[key].split(',')
+			vals = d[key].split(",")
 			for val in vals:
-				if val.startswith('.'):
+				if val.startswith("."):
 					val = os.path.abspath(val)
 				cs.append(val)
 		return cs
 
 	def init(self):
 		folder_path = os.curdir
-		if folder_path == '.':
+		if folder_path == ".":
 			folder_path = os.path.abspath(folder_path)
 
 		rod_file = os.path.join(folder_path, self.rodfile)
 		if os.path.exists(rod_file):
 			if os.path.isfile(rod_file):
-				print('[!] Existing Rodfile found in directory')
+				print("[!] Existing Rodfile found in directory")
 			else:
 				exit("Folder with the name Rodfile detected - This should be a file")
 		else:
 
 			c = RBase.create_run_file_header()
-			f = open(rod_file, 'w')
+			f = open(rod_file, "w")
 			f.write(c)
 			f.close()
 
-			print('[*] Rodfile created successfully')
+			print("[*] Rodfile created successfully")
 
 	def update(self):
 		s = self.check(should_print_map=False)
@@ -508,16 +519,16 @@ class Rod(object):
 
 		# Rod overrides
 		d = Rod.read_rod_overrides(self.rodfile)
-		output_folder = Rod.override_rod_setting_if_exists(d, output_folder, 'OUTPUT', 'path')
-		input_folder = Rod.override_rod_setting_if_exists(d, input_folder, 'INPUT', 'path')
-		should_update_xcode_proj = Rod.override_rod_setting_if_exists(d, False, 'XCODE_PROJ_UPDATE', 'bool')
-		platform = Rod.override_rod_setting_if_exists(d, "ios", 'PLATFORM', 'value').lower()
-		densities = Rod.override_rod_setting_if_exists(d, "hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi", 'DENSITIES', 'value').lower()
+		output_folder = Rod.override_rod_path_setting_if_exists(d, output_folder, "OUTPUT")
+		input_folder = Rod.override_rod_path_setting_if_exists(d, input_folder, "INPUT")
+		should_update_xcode_proj = Rod.override_rod_bool_setting_if_exists(d, False, "XCODE_PROJ_UPDATE")
+		platform = Rod.override_rod_setting_if_exists(d, "ios", "PLATFORM").lower()
+		densities = Rod.override_rod_setting_if_exists(d, "hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi", "DENSITIES").lower()
 		if platform == "flutter":
-			densities = Rod.override_rod_setting_if_exists(d, "1.0,2.0,3.0", 'DENSITIES', 'value').lower()
+			densities = Rod.override_rod_setting_if_exists(d, "1.0,2.0,3.0", "DENSITIES").lower()
 
 		assets_folders = []
-		xc_assets = Rod.read_projects(d, 'XCASSETS')
+		xc_assets = Rod.read_projects(d, "XCASSETS")
 		if len(xc_assets) > 0:
 			assets_folders.extend(xc_assets)
 			assets_folder = xc_assets[0]
@@ -531,61 +542,61 @@ class Rod(object):
 		if platform == "ios" and output_folder is None:
 			exit("Failed to locate xcode resources/images folder")
 
-		xc_projects = Rod.read_projects(d, 'XCPROJ')
-		cs_projects = Rod.read_projects(d, 'CSPROJ')
+		xc_projects = Rod.read_projects(d, "XCPROJ")
+		cs_projects = Rod.read_projects(d, "CSPROJ")
 
 		if xcodeproj is not None:
 			if xcodeproj not in xc_projects:
 				xc_projects.append(xcodeproj)			
 
 		if should_print_map:
-			print('> Image Output folder maps to %s' % output_folder)
+			print("> Image Output folder maps to %s" % output_folder)
 			if platform == "ios":
-				print('> Image Assets Output folders map to: ')
+				print("> Image Assets Output folders map to: ")
 				for assf in assets_folders:
-					print('  %s' % assf)
-			print('> Res Input folder maps to %s' % input_folder)
-			print('> Platform system to use %s' % platform)
+					print("  %s" % assf)
+			print("> Res Input folder maps to %s" % input_folder)
+			print("> Platform system to use %s" % platform)
 			if platform == "android" or platform == "droid" or platform == "flutter":
-				print('> Densities to use %s' % densities)
-			print('')
+				print("> Densities to use %s" % densities)
+			print("")
 
 			print("> inkscape maps to: %s" % r.path_inkscape)
 			print("> convert maps to: %s" % r.path_convert)
 
 			if len(xc_projects) > 0:
-				print('> xcodeproj maps to: ')
+				print("> xcodeproj maps to: ")
 				for xproj in xc_projects:
-					print('  %s' % xproj)
+					print("  %s" % xproj)
 				if should_update_xcode_proj:
-					print('> Should update xcode projects: Yes')
+					print("> Should update xcode projects: Yes")
 				else:
-					print('> Should update xcode projects: No')
+					print("> Should update xcode projects: No")
 			else:
 				if platform == "ios" and len(cs_projects) == 0:
 					print("Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" % folder_path)
-			print('')
+			print("")
 
 			if len(cs_projects) > 0:
-				print('> csproj maps to: ')
+				print("> csproj maps to: ")
 				for cs_proj in cs_projects:
-					print('  %s' % cs_proj)
+					print("  %s" % cs_proj)
 
 			if len(folders) > 0:
-				print('> folder references: ')
+				print("> folder references: ")
 				for folder in folders:
-					print('  %s' % folder)
+					print("  %s" % folder)
 
 		return RodSettings(xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj)
 
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-i', '--init', help="Generate a Rodfile for the current directory.", action='store_true', default=False)
-	parser.add_argument('-u', '--update', help="Regenerate resources and update the Xcode project.", action='store_true', default=False)
-	parser.add_argument('-c', '--check', help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action='store_true', default=False)
-	parser.add_argument('-r', '--repopulate', help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action='store_true', default=False)
-	parser.add_argument('-f', '--rodfile', help="The name of the rodfile", default=None)
+	parser.add_argument("-i", "--init", help="Generate a Rodfile for the current directory.", action="store_true", default=False)
+	parser.add_argument("-u", "--update", help="Regenerate resources and update the Xcode project.", action="store_true", default=False)
+	parser.add_argument("-c", "--check", help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action="store_true", default=False)
+	parser.add_argument("-r", "--repopulate", help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action="store_true", default=False)
+	parser.add_argument("-f", "--rodfile", help="The name of the rodfile", default=None)
 	args = parser.parse_args()
 
 	rodfiles = []
