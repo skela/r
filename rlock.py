@@ -12,6 +12,7 @@ class RLock(object):
 
 	def _load_lock_file(self) -> Optional[dict]:
 		if not os.path.exists(self.lock_file):
+			self._save_lock_file({})
 			return None
 		f = open(self.lock_file)
 		s = f.read()

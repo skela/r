@@ -27,7 +27,7 @@ class RBase(object):
 			sline = line
 			if "|" in line:
 				sline = line[0:line.find("|")]
-				action = line[line.find("|")+1:len(line)]
+				action = line[line.find("|") + 1:len(line)]
 
 			comps = sline.split(",")
 			if not len(comps) == 0:
@@ -104,7 +104,10 @@ class RBase(object):
 				elif sfile.endswith(".webp"):
 					self.webp2webps(w, h, sfile, png)
 				else:
-					ret = self.svg2pngs(w, h, sfile, png)
+					if png.endswith(".webp"):
+						ret = self.svg2webps(w, h, sfile, png)
+					else:
+						ret = self.svg2pngs(w, h, sfile, png)
 			elif method == "asset":
 				if sfile.endswith(".xcf"):
 					ret = self.xcf2pngs(w, h, sfile, png, use_assets=True)
@@ -121,7 +124,7 @@ class RBase(object):
 			elif method == "icon" or method == "app_icon":
 				self.icon(sfile)
 			elif method == "watch_icon" or method == "icon_watch":
-				self.icon(sfile,device="watch")
+				self.icon(sfile, device="watch")
 			elif method == "launch_image":
 				sfiles = sfile.split(':')
 				svg_bg = sfiles[0]
@@ -149,7 +152,7 @@ class RBase(object):
 	def create_run_file_header():
 		c = '''#Resource Ordnance Declaration File
 # Download ROD here https://github.com/skela/r
-# To run this `rod -u` 
+# To run this `rod -u`
 #
 # Examples:
 # w,h,sfile,png
@@ -164,9 +167,9 @@ class RBase(object):
 # For example:
 # 14,14,test.svg,test.png
 #
-# Methods: 
+# Methods:
 # > auto (default, if no method is defined)
-# > asset 
+# > asset
 # > svg
 # > inkscape
 # > svg2png
@@ -176,7 +179,7 @@ class RBase(object):
 # > watch_icon
 # > icon_watch
 # > launch_image
-# > pdf  
+# > pdf
 #
 
 # Remove the ROD overrides below that you don't need or want, the ones you do want, they do need to start with ### to take effect
@@ -192,7 +195,9 @@ class RBase(object):
 ### OUTPUT=images/
 ### INPUT=raw/
 
+### PLATFORM=web
+### OUTPUT=images/
+### INPUT=raw/
+
 '''
 		return c
-
-

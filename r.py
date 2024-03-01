@@ -11,9 +11,10 @@ from decimal import Decimal
 from shutil import which
 from rlock import RLock
 
+
 class AppIconSize(object):
 
-	def __init__(self,size,idiom,scales=[1,2,3],role=None,subtype=None):
+	def __init__(self, size, idiom, scales=[1, 2, 3], role=None, subtype=None):
 		self.size = size
 		self.idiom = idiom
 		self.scales = scales
@@ -26,18 +27,18 @@ class AppIconSize(object):
 		else:
 			return "%gx%g" % (self.size, self.size)
 
-	def get_file_name(self,scale) -> str:
+	def get_file_name(self, scale) -> str:
 		dim_string = self.get_dim_string()
-		file_name = "icon_%s-%s-%dx" % (self.idiom,dim_string,scale)
+		file_name = "icon_%s-%s-%dx" % (self.idiom, dim_string, scale)
 		if self.role is not None:
 			file_name += "-" + self.role
 		if self.subtype is not None:
 			file_name += "-" + self.subtype
 		return file_name + ".png"
 
-	def get_definition(self,scale):
+	def get_definition(self, scale):
 		dim_string = self.get_dim_string()
-		file_name = self.get_file_name(scale)            
+		file_name = self.get_file_name(scale)
 		defs = {"size": dim_string, "idiom": self.idiom, "filename": file_name, "scale": "%dx" % scale}
 		if self.role is not None:
 			defs["role"] = self.role
@@ -59,7 +60,8 @@ class RUtils(object):
 	def html_color_to_rgb(colorstring):
 		""" convert #RRGGBB to an (R, G, B) string used in things like css and other stuff """
 		colorstring = colorstring.strip()
-		if colorstring[0] == '#': colorstring = colorstring[1:]
+		if colorstring[0] == '#':
+			colorstring = colorstring[1:]
 		if len(colorstring) != 6:
 			raise ValueError("input #%s is not in #RRGGBB format" % colorstring)
 		r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:]
@@ -104,7 +106,7 @@ class RConfig(object):
 				if not os.path.exists(path):
 					path = "/Applications/Inkscape.app/Contents/MacOS/Inkscape"
 				if not os.path.exists(path):
-					path = "/opt/local/bin/inkscape"                
+					path = "/opt/local/bin/inkscape"
 				if not os.path.exists(path):
 					path = "/usr/local/bin/inkscape"
 			if RConfig.is_linux():
@@ -185,7 +187,7 @@ class R(object):
 		cmd = "%s -gravity center -compose src-over %s %s %s" % (cmd, png_file1, png_file2, result)
 		os.system(cmd)
 
-	def svg2png(self, width, height, png_file, svg_file, options=None):
+	def svg2png(self, width, height, png_file, svg_file, options=None, update_lock=True):
 		w = width
 		h = height
 
@@ -201,8 +203,9 @@ class R(object):
 		svg_path = os.path.abspath(svg_file)
 		png_path = os.path.abspath(png_file)
 
-		if self.lock.check_for_skippage("svg2png", width, height, svg_path, png_path):
-			return None
+		if update_lock:
+			if self.lock.check_for_skippage("svg2png", width, height, svg_path, png_path):
+				return None
 
 		cmd = self.path_inkscape
 		export_cmd = ' --export-png="'
@@ -217,10 +220,11 @@ class R(object):
 		if h is None:
 			cmd = cmd + export_cmd + png_path + '" --export-width=' + w
 		else:
-			cmd = cmd + export_cmd + png_path + '" --export-width=' + w + ' --export-height=' + h        
+			cmd = cmd + export_cmd + png_path + '" --export-width=' + w + ' --export-height=' + h
 		os.system(cmd)
 
-		self.lock.update("svg2png", width, height, svg_path, png_path)
+		if update_lock:
+			self.lock.update("svg2png", width, height, svg_path, png_path)
 
 		return png_path
 
@@ -261,9 +265,9 @@ class R(object):
 		cmd = self.path_convert + ' "' + in_file + '"'
 		cmd = '{} -background transparent -flatten -scale {}x{} "{}"'.format(cmd, w, h, out_file)
 		os.system(cmd)
-		
+
 		self.lock.update("xcf2png", width, height, in_file, out_file)
-		
+
 		return out_file
 
 	def xcf2pdf(self, width, height, out_file, in_file):
@@ -304,7 +308,7 @@ class R(object):
 
 		cmd = self.path_convert + ' "%s"' % in_file
 		cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
-		
+
 		os.system(cmd)
 
 		self.lock.update("webp2webp", width, height, in_file, out_file)
@@ -328,7 +332,7 @@ class R(object):
 
 		cmd = self.path_convert + ' "%s"' % in_file
 		cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
-		
+
 		os.system(cmd)
 
 		self.lock.update("png2png", width, height, in_file, out_file)
@@ -403,6 +407,32 @@ class R(object):
 	def svg2pngs(self, width1x, height1x, out_file, in_file):
 		return self.svg2png_r(width1x, height1x, out_file, in_file)
 
+	def svg2webps(self, width1x, height1x, out_file, in_file):
+
+		w = width1x
+		h = height1x
+
+		if not isinstance(width1x, str):
+			w = str(width1x)
+		if not isinstance(height1x, str) and h is not None:
+			h = str(height1x)
+
+		if RConfig.inkscape_version(self.path_inkscape) >= 1.0:
+			w = str(int(float(w)))
+			h = str(int(float(h)))
+
+		svg_path = os.path.abspath(in_file)
+		png_path = os.path.abspath(out_file)
+
+		out_file_png = png_path.replace(".webp", ".png")
+		self.svg2png(width1x, height1x, out_file_png, svg_path, update_lock=False)
+		self.convert(out_file_png, png_path)
+		os.remove(out_file_png)
+		self.lock.update("svg2webp", width1x, height1x, svg_path, png_path)
+
+	def svg2webp(self, width, height, webp_file, svg_file, options=None):
+		return self.svg2webps(width, height, webp_file, svg_file)
+
 	def png2pngs_r(self, w1x, h1x, out_file, in_file):
 		width1x = RUtils.number_from_object(w1x)
 		height1x = RUtils.number_from_object(h1x)
@@ -433,7 +463,7 @@ class R(object):
 		icon_sizes = [16, 32, 32, 64, 128, 256, 256, 512, 512, 1024]
 		icon_names = ['16x16', '16x16@2x', '32x32', '32x32@2x', '128x128', '128x128@2x', '256x256', '256x256@2x', '512x512', '512x512@2x']
 
-		tmp = os.path.join(os.getcwd(),".tmpROD")
+		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
 			os.mkdir(tmp)
 		tmp_folder = os.path.join(tmp, 'r_icon.iconset')
@@ -459,43 +489,43 @@ class R(object):
 	def svg2appiconset(self, icon_svg, destination, device=None):
 
 		icon_sizes = [
-			AppIconSize(20,"iphone",scales=[2,3]),
-			AppIconSize(29,"iphone"),
-			AppIconSize(40,"iphone",scales=[2,3]),
-			AppIconSize(57, "iphone",scales=[1,2]),
-			AppIconSize(60, "iphone",scales=[2,3]),
-			AppIconSize(20,"ipad",scales=[1,2]),
-			AppIconSize(29, "ipad",scales=[1,2]),
-			AppIconSize(40, "ipad",scales=[1,2]),
-			AppIconSize(50, "ipad",scales=[1,2]),
-			AppIconSize(72, "ipad",scales=[1,2]),
-			AppIconSize(76, "ipad",scales=[1,2]),
-			AppIconSize(83.5, "ipad",scales=[2]),
-			AppIconSize(1024,"ios-marketing",scales=[1])
+			AppIconSize(20, "iphone", scales=[2, 3]),
+			AppIconSize(29, "iphone"),
+			AppIconSize(40, "iphone", scales=[2, 3]),
+			AppIconSize(57, "iphone", scales=[1, 2]),
+			AppIconSize(60, "iphone", scales=[2, 3]),
+			AppIconSize(20, "ipad", scales=[1, 2]),
+			AppIconSize(29, "ipad", scales=[1, 2]),
+			AppIconSize(40, "ipad", scales=[1, 2]),
+			AppIconSize(50, "ipad", scales=[1, 2]),
+			AppIconSize(72, "ipad", scales=[1, 2]),
+			AppIconSize(76, "ipad", scales=[1, 2]),
+			AppIconSize(83.5, "ipad", scales=[2]),
+			AppIconSize(1024, "ios-marketing", scales=[1])
 		]
 
 		# icon_sizes = [(29, "iphone"), (40, "iphone"), (57, "iphone"), (60, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad"), (1024,"ios-marketing")]
-		# banlist1x = [(83.5, "ipad")] 
+		# banlist1x = [(83.5, "ipad")]
 		# banlist2x = [(1024,"ios-marketing")]
 		# banlist3x = [(57, "iphone"), (29, "ipad"), (40, "ipad"), (50, "ipad"), (72, "ipad"), (76, "ipad"), (83.5, "ipad"),(1024,"ios-marketing")]
 
 		if device == "watch":
 			icon_sizes = [
-				AppIconSize(24,"watch",scales=[2],role="notificationCenter",subtype="38mm"),
-				AppIconSize(27.5,"watch",scales=[2],role="notificationCenter",subtype="42mm"),
-				AppIconSize(29,"watch",scales=[2,3],role="companionSettings"),
-				AppIconSize(40,"watch",scales=[2],role="appLauncher",subtype="38mm"),
-				AppIconSize(44,"watch",scales=[2],role="longLook",subtype="42mm"),
-				AppIconSize(86,"watch",scales=[2],role="quickLook",subtype="38mm"),
-				AppIconSize(98,"watch",scales=[2],role="quickLook",subtype="42mm"),
-				AppIconSize(1024,"watch-marketing",scales=[1]),
+				AppIconSize(24, "watch", scales=[2], role="notificationCenter", subtype="38mm"),
+				AppIconSize(27.5, "watch", scales=[2], role="notificationCenter", subtype="42mm"),
+				AppIconSize(29, "watch", scales=[2, 3], role="companionSettings"),
+				AppIconSize(40, "watch", scales=[2], role="appLauncher", subtype="38mm"),
+				AppIconSize(44, "watch", scales=[2], role="longLook", subtype="42mm"),
+				AppIconSize(86, "watch", scales=[2], role="quickLook", subtype="38mm"),
+				AppIconSize(98, "watch", scales=[2], role="quickLook", subtype="42mm"),
+				AppIconSize(1024, "watch-marketing", scales=[1]),
 			]
-		
-		tmp = os.path.join(os.getcwd(),".tmpROD")        
+
+		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
 			os.mkdir(tmp)
 
-		tmp_root_folder = os.path.join(tmp, 'r_icon.xcassets')        
+		tmp_root_folder = os.path.join(tmp, 'r_icon.xcassets')
 		tmp_folder = os.path.join(tmp_root_folder, 'AppIcon.appiconset')
 
 		os.system('rm -fdr ' + tmp_root_folder)
@@ -504,9 +534,9 @@ class R(object):
 		os.mkdir(tmp_folder)
 
 		d = {"images": [], "info": {"version": 1, "author": "xcode"}}
-		
+
 		images = []
-		# legacy_names = {"57": "Icon.png", "114": "Icon@2x.png", "72": "Icon-72.png", "144": "Icon-72@2x.png"}        
+		# legacy_names = {"57": "Icon.png", "114": "Icon@2x.png", "72": "Icon-72.png", "144": "Icon-72@2x.png"}
 		for ics in icon_sizes:
 
 			icon_size = ics.size
@@ -521,13 +551,13 @@ class R(object):
 				defs = ics.get_definition(1)
 				self.svg2png(wh, wh, os.path.abspath(os.path.join(tmp_folder, file_name)), icon_svg)
 				images.append(defs)
-			
+
 			if 2 in ics.scales:
 				file_name = ics.get_file_name(2)
 				defs = ics.get_definition(2)
 				self.svg2png(wh2, wh2, os.path.abspath(os.path.join(tmp_folder, file_name)), icon_svg)
 				images.append(defs)
-			
+
 			if 3 in ics.scales:
 				file_name = ics.get_file_name(3)
 				defs = ics.get_definition(3)
@@ -535,8 +565,8 @@ class R(object):
 				images.append(defs)
 
 		d["images"] = images
-				
-		f = open(os.path.join(tmp_folder,'Contents.json'), "w")
+
+		f = open(os.path.join(tmp_folder, 'Contents.json'), "w")
 		js = json.dumps(d)
 		f.write(js)
 		f.close()
@@ -547,10 +577,10 @@ class R(object):
 			destination_folder = os.path.join(dest_folder, 'AppIcon.appiconset')
 			if os.path.isdir(destination_folder):
 				os.system('rm -fdr ' + destination_folder)
-			cmd = "mv %s %s" % (tmp_folder, destination_folder)            
+			cmd = "mv %s %s" % (tmp_folder, destination_folder)
 			os.system(cmd)
 		else:
-			cmd = "mv %s %s" % (tmp_root_folder, dest_folder)            
+			cmd = "mv %s %s" % (tmp_root_folder, dest_folder)
 			os.system(cmd)
 
 	def svg2launch_image(self, svg_bg, svg_centred, svg_centred_size_1x, destination, for_iphone=True, for_ipad=True):
@@ -559,28 +589,45 @@ class R(object):
 
 		if for_iphone:
 			ics = [
-				(320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
-				(320, 480, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-				(320, 568, "portrait", "iphone", {"extent": "full-screen", "subtype": "retina4"}),
-				(320, 480, "portrait", "iphone", {"extent": "full-screen"}),
+				(320, 568, "portrait", "iphone", {
+					"extent": "full-screen",
+					"minimum-system-version": "7.0",
+					"subtype": "retina4"
+				}),
+				(320, 480, "portrait", "iphone", {
+					"extent": "full-screen",
+					"minimum-system-version": "7.0"
+				}),
+				(320, 568, "portrait", "iphone", {
+					"extent": "full-screen",
+					"subtype": "retina4"
+				}),
+				(320, 480, "portrait", "iphone", {
+					"extent": "full-screen"
+				}),
 			]
 			icon_sizes.extend(ics)
 
 		if for_ipad:
-			icsp = [
-				(768, 1024, "portrait", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-				(1024, 768, "landscape", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-				(768, 1004, "portrait", "ipad", {"extent": "to-status-bar"}),
-				(1024, 748, "landscape", "ipad", {"extent": "to-status-bar"})
-			]
+			icsp = [(768, 1024, "portrait", "ipad", {
+				"extent": "full-screen",
+				"minimum-system-version": "7.0"
+			}), (1024, 768, "landscape", "ipad", {
+				"extent": "full-screen",
+				"minimum-system-version": "7.0"
+			}), (768, 1004, "portrait", "ipad", {
+				"extent": "to-status-bar"
+			}), (1024, 748, "landscape", "ipad", {
+				"extent": "to-status-bar"
+			})]
 			icon_sizes.extend(icsp)
 
-		tmp = os.path.join(os.getcwd(),".tmpROD")
+		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
 			os.mkdir(tmp)
 
-		tmp_root_folder = os.path.join(tmp,'r_icon.xcassets')
-		tmp_folder = os.path.join(tmp_root_folder,'LaunchImage.launchimage')
+		tmp_root_folder = os.path.join(tmp, 'r_icon.xcassets')
+		tmp_folder = os.path.join(tmp_root_folder, 'LaunchImage.launchimage')
 
 		os.system('rm -fdr ' + tmp_root_folder)
 
@@ -588,7 +635,7 @@ class R(object):
 		os.mkdir(tmp_folder)
 
 		logo_img_1x = self.svg2png(svg_centred_size_1x[0], svg_centred_size_1x[1], os.path.join(tmp_folder, 'logo1.png'), svg_centred)
-		logo_img_2x = self.svg2png(svg_centred_size_1x[0]*2, svg_centred_size_1x[1]*2, os.path.join(tmp_folder, 'logo2.png'), svg_centred)
+		logo_img_2x = self.svg2png(svg_centred_size_1x[0] * 2, svg_centred_size_1x[1] * 2, os.path.join(tmp_folder, 'logo2.png'), svg_centred)
 
 		d = {"images": [], "info": {"version": 1, "author": "xcode"}}
 
@@ -656,22 +703,35 @@ class R(object):
 
 	# Note this is not that useful, you may want to make use of the svg2launch_image function above.
 	def svg2launchimage(self, launch_svg, destination):
-		icon_sizes = [
-			(320, 568, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"}),
-			(320, 480, "portrait", "iphone", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-			(320, 568, "portrait", "iphone", {"extent": "full-screen", "subtype": "retina4"}),
-			(320, 480, "portrait", "iphone", {"extent": "full-screen"}),
-			(768, 1024, "portrait", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-			(1024, 768, "landscape", "ipad", {"extent": "full-screen", "minimum-system-version": "7.0"}),
-			(768, 1004, "portrait", "ipad", {"extent": "to-status-bar"}),
-			(1024, 748, "landscape", "ipad", {"extent": "to-status-bar"})
-		]
+		icon_sizes = [(320, 568, "portrait", "iphone", {
+			"extent": "full-screen",
+			"minimum-system-version": "7.0",
+			"subtype": "retina4"
+		}), (320, 480, "portrait", "iphone", {
+			"extent": "full-screen",
+			"minimum-system-version": "7.0"
+		}), (320, 568, "portrait", "iphone", {
+			"extent": "full-screen",
+			"subtype": "retina4"
+		}), (320, 480, "portrait", "iphone", {
+			"extent": "full-screen"
+		}), (768, 1024, "portrait", "ipad", {
+			"extent": "full-screen",
+			"minimum-system-version": "7.0"
+		}), (1024, 768, "landscape", "ipad", {
+			"extent": "full-screen",
+			"minimum-system-version": "7.0"
+		}), (768, 1004, "portrait", "ipad", {
+			"extent": "to-status-bar"
+		}), (1024, 748, "landscape", "ipad", {
+			"extent": "to-status-bar"
+		})]
 
-		tmp = os.path.join(os.getcwd(),".tmpROD")
+		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
 			os.mkdir(tmp)
 
-		tmp_root_folder = os.path.join(tmp,'r_icon.xcassets')
+		tmp_root_folder = os.path.join(tmp, 'r_icon.xcassets')
 		tmp_folder = os.path.join(tmp_root_folder, 'LaunchImage.launchimage')
 
 		os.system('rm -fdr ' + tmp_root_folder)
@@ -733,14 +793,7 @@ class R(object):
 			os.system(cmd)
 
 	def svg2android_icons(self, svg_file, target, round=False):
-		icon_sizes = [
-			(36, 36, "mipmap-ldpi"),
-			(48, 48, "mipmap-mdpi"),
-			(72, 72, "mipmap-hdpi"),
-			(96, 96, "mipmap-xhdpi"),
-			(144, 144, "mipmap-xxhdpi"),
-			(192, 192, "mipmap-xxxhdpi")
-		]
+		icon_sizes = [(36, 36, "mipmap-ldpi"), (48, 48, "mipmap-mdpi"), (72, 72, "mipmap-hdpi"), (96, 96, "mipmap-xhdpi"), (144, 144, "mipmap-xxhdpi"), (192, 192, "mipmap-xxxhdpi")]
 
 		resources_folder = target
 		icon_name = 'ic_launcher.png'
@@ -750,11 +803,11 @@ class R(object):
 			icon_name = os.path.basename(target)
 			resources_folder = resources_folder.replace(icon_name, '')
 
-		tmp = os.path.join(os.getcwd(),".tmpROD")
+		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
 			os.mkdir(tmp)
 
-		tmp_root_folder = os.path.join(tmp,'r_icons.droid')
+		tmp_root_folder = os.path.join(tmp, 'r_icons.droid')
 		os.system('rm -fdr ' + tmp_root_folder)
 		os.mkdir(tmp_root_folder)
 
@@ -770,7 +823,10 @@ class R(object):
 		cmd = "cp -R %s %s" % (tmp_root_folder, resources_folder)
 		os.system(cmd)
 
-	def convert(self, in_path_png, out_path_png, actions):
+	def convert(self, in_path_png, out_path_png, actions=None):
+		if actions is None:
+			cmd = '%s "%s" "%s"' % (self.path_convert, in_path_png, out_path_png)
+			os.system(cmd)
 		cmd = '%s "%s" %s "%s"' % (self.path_convert, in_path_png, actions, out_path_png)
 		os.system(cmd)
 
