@@ -14,13 +14,14 @@ from rlock import RLock
 
 class AppIconSize(object):
 
-	def __init__(self, size, idiom, scales=[1, 2, 3], role=None, subtype=None, platform=None):
+	def __init__(self, size, idiom, scales=[1, 2, 3], role=None, subtype=None, platform=None, include_scale_in_json=True):
 		self.size = size
 		self.idiom = idiom
 		self.scales = scales
 		self.role = role
 		self.subtype = subtype
 		self.platform = platform
+		self.include_scale_in_json = include_scale_in_json
 
 	def get_dim_string(self) -> str:
 		if Decimal(self.size) % 1 == 0:
@@ -40,7 +41,9 @@ class AppIconSize(object):
 	def get_definition(self, scale):
 		dim_string = self.get_dim_string()
 		file_name = self.get_file_name(scale)
-		defs = {"size": dim_string, "idiom": self.idiom, "filename": file_name, "scale": "%dx" % scale}
+		defs = {"size": dim_string, "idiom": self.idiom, "filename": file_name}
+		if self.include_scale_in_json:
+			defs["scale"] = "%dx" % scale
 		if self.role is not None:
 			defs["role"] = self.role
 		if self.subtype is not None:
@@ -534,7 +537,7 @@ class R(object):
 
 		if device == "watchcomplication":
 			icon_sizes = [
-				AppIconSize(1024, "universal", scales=[1], platform="watchos"),
+				AppIconSize(1024, "universal", scales=[1], platform="watchos", include_scale_in_json=False),
 			]
 
 		tmp = os.path.join(os.getcwd(), ".tmpROD")
