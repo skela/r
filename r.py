@@ -513,11 +513,19 @@ class R(object):
 			icon_sizes = [
 				AppIconSize(24, "watch", scales=[2], role="notificationCenter", subtype="38mm"),
 				AppIconSize(27.5, "watch", scales=[2], role="notificationCenter", subtype="42mm"),
+				AppIconSize(33, "watch", scales=[2], role="notificationCenter", subtype="45mm"),
 				AppIconSize(29, "watch", scales=[2, 3], role="companionSettings"),
 				AppIconSize(40, "watch", scales=[2], role="appLauncher", subtype="38mm"),
-				AppIconSize(44, "watch", scales=[2], role="longLook", subtype="42mm"),
+				AppIconSize(44, "watch", scales=[2], role="appLauncher", subtype="40mm"),
+				AppIconSize(46, "watch", scales=[2], role="appLauncher", subtype="41mm"),
+				AppIconSize(50, "watch", scales=[2], role="appLauncher", subtype="44mm"),
+				AppIconSize(51, "watch", scales=[2], role="appLauncher", subtype="45mm"),
+				AppIconSize(54, "watch", scales=[2], role="appLauncher", subtype="49mm"),
 				AppIconSize(86, "watch", scales=[2], role="quickLook", subtype="38mm"),
 				AppIconSize(98, "watch", scales=[2], role="quickLook", subtype="42mm"),
+				AppIconSize(108, "watch", scales=[2], role="quickLook", subtype="44mm"),
+				AppIconSize(117, "watch", scales=[2], role="quickLook", subtype="45mm"),
+				AppIconSize(129, "watch", scales=[2], role="quickLook", subtype="49mm"),
 				AppIconSize(1024, "watch-marketing", scales=[1]),
 			]
 
