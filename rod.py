@@ -633,7 +633,8 @@ if __name__ == "__main__":
 		elif args.repopulate:
 			rod.update_projects()
 		elif args.version:
-			f = open("setup.json")
+			dn = os.path.dirname(os.path.realpath(__file__))
+			f = open(os.path.join(dn, "setup.json"))
 			s = f.read()
 			d = json.loads(s)
 			version = d["version"]
