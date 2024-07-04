@@ -1,4 +1,4 @@
-ROD_VERSION=1.0.6
+ROD_VERSION=$(shell cat setup.json | jq --raw-output '"\(.version)"')
 
 .PHONY: build
 build:

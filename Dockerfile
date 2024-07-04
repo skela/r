@@ -19,6 +19,8 @@ COPY rplatform/ /rod/rplatform
 
 COPY *.py /rod/
 
+COPY setup.json /rod/
+
 RUN echo "python3 /rod/rod.py" >> /rod/rod
 
 RUN chmod +x /rod/rod

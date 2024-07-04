@@ -1,6 +1,8 @@
 import os
 import argparse
 import xmltodict
+import json
+
 from collections import OrderedDict
 
 from rplatform.base import RBase
@@ -602,6 +604,7 @@ if __name__ == "__main__":
 	parser.add_argument("-c", "--check", help="Check to see if Rod can figure out where the resource inputs and the target outputs are.", action="store_true", default=False)
 	parser.add_argument("-r", "--repopulate", help="Repopulate the XCode Project's image folder reference or Monodevelop's image definitions", action="store_true", default=False)
 	parser.add_argument("-f", "--rodfile", help="The name of the rodfile", default=None)
+	parser.add_argument("-v", "--version", help="Version of Rod", action="store_true", default=False)
 	args = parser.parse_args()
 
 	rodfiles = []
@@ -629,6 +632,13 @@ if __name__ == "__main__":
 			print("")
 		elif args.repopulate:
 			rod.update_projects()
+		elif args.version:
+			f = open("setup.json")
+			s = f.read()
+			d = json.loads(s)
+			version = d["version"]
+			f.close()
+			print(f"Rod {version}")
 		else:
 			parser.print_help()
 			break
