@@ -138,10 +138,9 @@ class Rod(object):
 	@staticmethod
 	def update_xcode_project(xcodeproj, img_folder):
 
-		pbxproj = os.path.join(xcodeproj, "project.pbxproj")
-
-		from mod_pbxproj import XcodeProject
-		project = XcodeProject.Load(pbxproj)
+		proj = os.path.join(xcodeproj, "project.pbxproj")
+		from pbxproj import XcodeProject
+		project = XcodeProject.load(proj)
 
 		groups = project.get_groups_by_name("Images")
 		if groups is None or len(groups) == 0:
@@ -156,8 +155,8 @@ class Rod(object):
 			if a_file.startswith("."):
 				continue
 			a_file_path = os.path.join(img_folder, a_file)
-			res = project.add_file_if_doesnt_exist(a_file_path, group)
-			if len(res) > 0:
+			res = project.add_file(a_file_path, group)
+			if res is not None and len(res) > 0:
 				print("Adding new file - %s" % res)
 
 		project.save()
