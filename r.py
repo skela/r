@@ -14,12 +14,13 @@ from rlock import RLock
 
 class AppIconSize(object):
 
-	def __init__(self, size, idiom, scales=[1, 2, 3], role=None, subtype=None):
+	def __init__(self, size, idiom, scales=[1, 2, 3], role=None, subtype=None, platform=None):
 		self.size = size
 		self.idiom = idiom
 		self.scales = scales
 		self.role = role
 		self.subtype = subtype
+		self.platform = platform
 
 	def get_dim_string(self) -> str:
 		if Decimal(self.size) % 1 == 0:
@@ -44,6 +45,8 @@ class AppIconSize(object):
 			defs["role"] = self.role
 		if self.subtype is not None:
 			defs["subtype"] = self.subtype
+		if self.platform is not None:
+			defs["platform"] = self.platform
 		return defs
 
 
@@ -527,6 +530,11 @@ class R(object):
 				AppIconSize(117, "watch", scales=[2], role="quickLook", subtype="45mm"),
 				AppIconSize(129, "watch", scales=[2], role="quickLook", subtype="49mm"),
 				AppIconSize(1024, "watch-marketing", scales=[1]),
+			]
+
+		if device == "watchcomplication":
+			icon_size = [
+				AppIconSize(1024, "universal", scales=[1], platform="watchos"),
 			]
 
 		tmp = os.path.join(os.getcwd(), ".tmpROD")

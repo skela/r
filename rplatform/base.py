@@ -125,6 +125,8 @@ class RBase(object):
 				self.icon(sfile)
 			elif method == "watch_icon" or method == "icon_watch":
 				self.icon(sfile, device="watch")
+			elif method == "watch_complication_icon" or method == "icon_watch_complication":
+				self.icon(sfile, device="watchcomplication")
 			elif method == "launch_image":
 				sfiles = sfile.split(':')
 				svg_bg = sfiles[0]
