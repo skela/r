@@ -533,7 +533,7 @@ class R(object):
 			]
 
 		if device == "watchcomplication":
-			icon_size = [
+			icon_sizes = [
 				AppIconSize(1024, "universal", scales=[1], platform="watchos"),
 			]
 
