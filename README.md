@@ -2,9 +2,31 @@
 
 ## ROD - Resource Ordnance Declaration - rod.py
 
-Resource generation system based on declarations in Rodfile (Resource Ordnance Declaration)
+Resource generation system based on declarations in Rodfile (Resource Ordnance Declaration).
 
-Currently supported platforms: ios, android, flutter, web, xamarin-ios, xamarin-android
+Example Rodfile
+
+```
+### OUTPUT=assets/images
+### INPUT=raw
+### PLATFORM=flutter
+
+50,50,a.svg,a.webp
+
+### OUTPUT=app/src/main/res
+### INPUT=raw
+### PLATFORM=android
+
+50,50,a.svg,a.png
+
+### OUTPUT=assets/
+### INPUT=raw
+### PLATFORM=web
+
+50,50,a.svg,a.webp
+```
+
+Currently supported platforms: ios, android, flutter, web
 
 First init to get started:
 
@@ -38,4 +60,4 @@ if command_run != 0:
 
 # R - r.py
 
-Resource Recipes for converting svg, xcf, pdf, png, webp to pngs in the differents scales required so that they can be used by iOS and Android apps.
+Resource Recipes for converting between svg, xcf, pdf, png, webp and pngs in the different scales required so that they can be used by iOS, Android and Web apps.
