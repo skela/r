@@ -130,13 +130,20 @@ class RConfig(object):
 		path = path_convert
 		if path_convert is None:
 			if RConfig.is_mac():
-				path = "convert"
+				path = "magick"
 			if RConfig.is_linux():
-				path = "/usr/bin/convert"
+				path = "/usr/bin/magick"
 			if RConfig.is_windows():
 				exit("Unsupported operating system, please type format c: in the command prompt")
 		else:
 			path = path_convert
+
+		if not os.path.exists(path):
+			path = "/opt/local/bin/magick"
+		if not os.path.exists(path):
+			path = "/usr/local/bin/magick"
+		if not os.path.exists(path):
+			path = "/opt/homebrew/bin/magick"
 
 		if not os.path.exists(path):
 			path = "/opt/local/bin/convert"
@@ -369,6 +376,7 @@ class R(object):
 		out_file2x = out_file.replace(".png", "@2x.png")
 
 		width3x = width1x * 3
+		height3x = None
 		if height1x is not None:
 			height3x = height1x * 3
 		out_file3x = out_file.replace(".png", '@3x.png')
@@ -564,7 +572,7 @@ class R(object):
 		for ics in icon_sizes:
 
 			icon_size = ics.size
-			idiom = ics.idiom
+			# idiom = ics.idiom
 
 			wh = icon_size
 			wh2 = wh * 2

@@ -1,4 +1,8 @@
 {
+  "svg2png|100.0x100.0|raw/a.svg->droid/drawable-xhdpi/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "41ad6b978dac4bd28a4cfbbd0456e1f37246689c1927850ce16fbd097e3b0c2c"
+  },
   "svg2png|100.0x100.0|raw/a.svg->flutter/assets/images/2.0x/a.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
     "output": "41ad6b978dac4bd28a4cfbbd0456e1f37246689c1927850ce16fbd097e3b0c2c"
@@ -26,6 +30,10 @@
   "svg2png|100.0x100.0|raw/angle-up.svg->flutter/assets/images/2.0x/up.png": {
     "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
     "output": "17dd59a2c81d899ae536573bd28296e4471bd4e0e8d0d25733814695f16dfd42"
+  },
+  "svg2png|150.0x150.0|raw/a.svg->droid/drawable-xxhdpi/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "5cc364e5d12cf7674d7bc9217fd55717d53d5dbd8ba6d0bdaf224cb61c5b108c"
   },
   "svg2png|150.0x150.0|raw/a.svg->flutter/assets/images/3.0x/a.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
@@ -55,7 +63,31 @@
     "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
     "output": "4a75e8db34bc07b4786dec69e4e21024ac439d3ded5b89b670d8687d8032649b"
   },
+  "svg2png|200.0x200.0|raw/a.svg->droid/drawable-xxxhdpi/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "2d848da5e6dae6ed064289f02abf2507102c5baf92e7ec4c1faab94cd329828e"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->droid/drawable-mdpi/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
   "svg2png|50.0x50.0|raw/a.svg->flutter/assets/images/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->web/a-blue.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->web/a-green.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->web/a-red.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->web/a.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
     "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
   },
@@ -82,6 +114,10 @@
   "svg2png|50.0x50.0|raw/angle-up.svg->flutter/assets/images/up.png": {
     "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
     "output": "36058c1d65235bfe3ffce1e6e1e113c8646f970c07029d43be8e5663db054af7"
+  },
+  "svg2png|75.0x75.0|raw/a.svg->droid/drawable-hdpi/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "3b0ff9c5c678ccb3dc98d2cf6e804c3fd313e4618954e777a5f664f334ecd591"
   },
   "svg2webp|100.0x100.0|raw/a.svg->flutter/assets/images/2.0x/a.webp": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
@@ -140,6 +176,10 @@
     "output": "52037cf701121b92095a9c7add4280708dd1e012783d63f4c42bfca6cacd37a6"
   },
   "svg2webp|50.0x50.0|raw/a.svg->flutter/assets/images/a.webp": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "56d4571012984f59b48b48eb1723c692dc970bee1e04e0a9930e4951e20073b9"
+  },
+  "svg2webp|50.0x50.0|raw/a.svg->web/a.webp": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
     "output": "56d4571012984f59b48b48eb1723c692dc970bee1e04e0a9930e4951e20073b9"
   },

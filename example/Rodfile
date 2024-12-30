@@ -18,9 +18,20 @@
 50,50,angle-right.svg,right.webp
 50,50,angle-up.svg,up.webp
 
-### OUTPUT=android/
+### OUTPUT=droid/
 ### INPUT=raw
 ### PLATFORM=android
 
 50,50,a.svg,a.png
+
+### OUTPUT=web/
+### INPUT=raw
+### PLATFORM=web
+
+50,50,a.svg,a.png
+50,50,a.svg,a-red.png|black->red
+50,50,a.svg,a-green.png|black->green
+50,50,a.svg,a-blue.png|black->blue
+
+50,50,a.svg,a.webp
 

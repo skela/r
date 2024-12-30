@@ -89,6 +89,8 @@ class RBase(object):
 			(succeeded, method, w, h, sfile, png, action) = RBase.components_for_line(line)
 			if not succeeded:
 				continue
+			if sfile is None:
+				continue
 
 			if method != "launch_image":
 				sfile = os.path.join(path_to_resources_folder, sfile)
