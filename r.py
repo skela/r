@@ -142,6 +142,8 @@ class RConfig(object):
 			path = "/opt/local/bin/convert"
 		if not os.path.exists(path):
 			path = "/usr/local/bin/convert"
+		if not os.path.exists(path):
+			path = "/opt/homebrew/bin/convert"
 
 		return path
 
@@ -429,6 +431,9 @@ class R(object):
 
 		svg_path = os.path.abspath(in_file)
 		png_path = os.path.abspath(out_file)
+
+		if self.lock.check_for_skippage("svg2webp", width1x, height1x, svg_path, png_path):
+			return None
 
 		out_file_png = png_path.replace(".webp", ".png")
 		self.svg2png(width1x, height1x, out_file_png, svg_path, update_lock=False)

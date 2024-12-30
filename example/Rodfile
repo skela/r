@@ -1,0 +1,26 @@
+### OUTPUT=flutter/assets/images
+### INPUT=raw
+### PLATFORM=flutter
+
+50,50,a.svg,a.png
+50,50,activity.svg,activity.png
+50,50,alien.svg,alien.png
+50,50,angle-down.svg,down.png
+50,50,angle-left.svg,left.png
+50,50,angle-right.svg,right.png
+50,50,angle-up.svg,up.png
+
+50,50,a.svg,a.webp
+50,50,activity.svg,activity.webp
+50,50,alien.svg,alien.webp
+50,50,angle-down.svg,down.webp
+50,50,angle-left.svg,left.webp
+50,50,angle-right.svg,right.webp
+50,50,angle-up.svg,up.webp
+
+### OUTPUT=android/
+### INPUT=raw
+### PLATFORM=android
+
+50,50,a.svg,a.png
+

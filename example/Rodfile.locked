@@ -1,0 +1,170 @@
+{
+  "svg2png|100.0x100.0|raw/a.svg->flutter/assets/images/2.0x/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "41ad6b978dac4bd28a4cfbbd0456e1f37246689c1927850ce16fbd097e3b0c2c"
+  },
+  "svg2png|100.0x100.0|raw/activity.svg->flutter/assets/images/2.0x/activity.png": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "2ae41360a1cd7f35ab7d0fd68c5762ab0a3736e0a419fb89ed910e0935c24d55"
+  },
+  "svg2png|100.0x100.0|raw/alien.svg->flutter/assets/images/2.0x/alien.png": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "f8f26231422cc365b642a1d99b0386707e86ce40ce24ddb60905e79b01dcb853"
+  },
+  "svg2png|100.0x100.0|raw/angle-down.svg->flutter/assets/images/2.0x/down.png": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "e55924ff3b1c1327b831f092be5e98bea5e17e0a4cfaeb2c9a049ec7c35be7b1"
+  },
+  "svg2png|100.0x100.0|raw/angle-left.svg->flutter/assets/images/2.0x/left.png": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "4b27c6bc5125bc2db1a70b99d08602e2d88af51e3f16ea4bd4919821e6b4e4a3"
+  },
+  "svg2png|100.0x100.0|raw/angle-right.svg->flutter/assets/images/2.0x/right.png": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "bdcd34c454b62a166bd6986ec635da9c02353619738483d79c25b6f875e0b09b"
+  },
+  "svg2png|100.0x100.0|raw/angle-up.svg->flutter/assets/images/2.0x/up.png": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "17dd59a2c81d899ae536573bd28296e4471bd4e0e8d0d25733814695f16dfd42"
+  },
+  "svg2png|150.0x150.0|raw/a.svg->flutter/assets/images/3.0x/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "5cc364e5d12cf7674d7bc9217fd55717d53d5dbd8ba6d0bdaf224cb61c5b108c"
+  },
+  "svg2png|150.0x150.0|raw/activity.svg->flutter/assets/images/3.0x/activity.png": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "bee9f393bb306daef4fad0f99e5a98b22831398a36f93b68de7b0e3e768c520c"
+  },
+  "svg2png|150.0x150.0|raw/alien.svg->flutter/assets/images/3.0x/alien.png": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "1faf34d0d1e9b3418b87e02127a262792dc7081d58421384e3e2285d93ab10e3"
+  },
+  "svg2png|150.0x150.0|raw/angle-down.svg->flutter/assets/images/3.0x/down.png": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "f628f9f53fe72f0461424e997eb6034ae2f75e7dba069b426131b0267655a539"
+  },
+  "svg2png|150.0x150.0|raw/angle-left.svg->flutter/assets/images/3.0x/left.png": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "57fd0e8422fdc0006fc7cce3e7a88177c4031c9a2afc9fecb1a0fed81d14df5f"
+  },
+  "svg2png|150.0x150.0|raw/angle-right.svg->flutter/assets/images/3.0x/right.png": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "1ade8a825773219b458ba51074e53f8ab01cefb2ccddc3787769fbc56e4864e3"
+  },
+  "svg2png|150.0x150.0|raw/angle-up.svg->flutter/assets/images/3.0x/up.png": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "4a75e8db34bc07b4786dec69e4e21024ac439d3ded5b89b670d8687d8032649b"
+  },
+  "svg2png|50.0x50.0|raw/a.svg->flutter/assets/images/a.png": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "032087d22df788b82e3c20a667f392a3f93d9776371edcd4121d2b3dfdc9646b"
+  },
+  "svg2png|50.0x50.0|raw/activity.svg->flutter/assets/images/activity.png": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "57d1fa96959c0fa87000f7a77e1c6e42643748a4fbf5cbcba4044e75726ba2ea"
+  },
+  "svg2png|50.0x50.0|raw/alien.svg->flutter/assets/images/alien.png": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "dbee507a9e72d8150c57deb4446834c493d3c8ff89d0355f78d84ed825728b74"
+  },
+  "svg2png|50.0x50.0|raw/angle-down.svg->flutter/assets/images/down.png": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "0d22af9b545d469792a763c0dfbd24e9d7e1b222b2109d3f0ad858f5f601d20f"
+  },
+  "svg2png|50.0x50.0|raw/angle-left.svg->flutter/assets/images/left.png": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "36613e462dd66c61c57094652e1d90c68e697808c4b34dcb294b5a2694881b9a"
+  },
+  "svg2png|50.0x50.0|raw/angle-right.svg->flutter/assets/images/right.png": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "e61f75802b69038aeb3cc53ef04dacff459f9ef5478834a9b5643e2971b2c1fa"
+  },
+  "svg2png|50.0x50.0|raw/angle-up.svg->flutter/assets/images/up.png": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "36058c1d65235bfe3ffce1e6e1e113c8646f970c07029d43be8e5663db054af7"
+  },
+  "svg2webp|100.0x100.0|raw/a.svg->flutter/assets/images/2.0x/a.webp": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "3eb98673c6a357bc219d23c4c061583b88db166e242c7049f204cc1560724306"
+  },
+  "svg2webp|100.0x100.0|raw/activity.svg->flutter/assets/images/2.0x/activity.webp": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "75b67174c0b69515b86eaec33625c673c69c1b2a6b9b114e14d31783851b4a36"
+  },
+  "svg2webp|100.0x100.0|raw/alien.svg->flutter/assets/images/2.0x/alien.webp": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "97c91b958f7989086173f290f018ac3c8d53bcab285d03f5e0326023b9e1d07b"
+  },
+  "svg2webp|100.0x100.0|raw/angle-down.svg->flutter/assets/images/2.0x/down.webp": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "e402aaada115d8160f356be0f4e4fca5adfe445b65a2ce0b2b57c1f38a502cc7"
+  },
+  "svg2webp|100.0x100.0|raw/angle-left.svg->flutter/assets/images/2.0x/left.webp": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "cdc00944eebc0debe8ac3d65c458a50ffff8603de380cc88603cc2de7adb5f39"
+  },
+  "svg2webp|100.0x100.0|raw/angle-right.svg->flutter/assets/images/2.0x/right.webp": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "2f1b25f54b1b817e58eba018e2e55f92177015782af4c4018459b13f74aedd24"
+  },
+  "svg2webp|100.0x100.0|raw/angle-up.svg->flutter/assets/images/2.0x/up.webp": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "fea5e4957db524ccd0dd96bd4af6d01801788ca5670829c109e8a6ce439a69f6"
+  },
+  "svg2webp|150.0x150.0|raw/a.svg->flutter/assets/images/3.0x/a.webp": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "16d0cc7e0a43a6de5c0e0793e48740baf13c14ab5e4df4b7b1b58117d285ad99"
+  },
+  "svg2webp|150.0x150.0|raw/activity.svg->flutter/assets/images/3.0x/activity.webp": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "3b97d2d34343c7d91a196a3433be63bbdb34518516f5dc5031401bdfa8a9aeb9"
+  },
+  "svg2webp|150.0x150.0|raw/alien.svg->flutter/assets/images/3.0x/alien.webp": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "4367b879256b86c0c921edc646744e682c343d88a2b468a1acf95f35d7229f9f"
+  },
+  "svg2webp|150.0x150.0|raw/angle-down.svg->flutter/assets/images/3.0x/down.webp": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "df6fe55e86f688051fa0f8ab99fadf2e1f8154656dc4797458f83188c4885303"
+  },
+  "svg2webp|150.0x150.0|raw/angle-left.svg->flutter/assets/images/3.0x/left.webp": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "3d4a4d021c135e7feadff8bae512e90ca5c9eb97367cef08fa5bac0ea8482c4e"
+  },
+  "svg2webp|150.0x150.0|raw/angle-right.svg->flutter/assets/images/3.0x/right.webp": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "609d7cc8701248ce34afc1b4888a2f0175fb8a21f938798f5ddd23f25cce6ca6"
+  },
+  "svg2webp|150.0x150.0|raw/angle-up.svg->flutter/assets/images/3.0x/up.webp": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "52037cf701121b92095a9c7add4280708dd1e012783d63f4c42bfca6cacd37a6"
+  },
+  "svg2webp|50.0x50.0|raw/a.svg->flutter/assets/images/a.webp": {
+    "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
+    "output": "56d4571012984f59b48b48eb1723c692dc970bee1e04e0a9930e4951e20073b9"
+  },
+  "svg2webp|50.0x50.0|raw/activity.svg->flutter/assets/images/activity.webp": {
+    "input": "e27756e0c1af92bba9aca0385078eb06e9b14c150b317ea6be87a7cf7dd56d94",
+    "output": "6dd1acf0efbd7aebb76210aee7e8c2c3309f66ebfd958a8ebf0434cc49f53db7"
+  },
+  "svg2webp|50.0x50.0|raw/alien.svg->flutter/assets/images/alien.webp": {
+    "input": "825a78ade7086bfe4326db23187a703e3b3c9e694e1e08f586c7a8e757f05f02",
+    "output": "6ba3adc3653467d96b7ba09f1fd3d57202089c0de77ea05dae612eed9f677196"
+  },
+  "svg2webp|50.0x50.0|raw/angle-down.svg->flutter/assets/images/down.webp": {
+    "input": "aadeffaf2bc0cf57f2b45d13aa3fe6c176db67fa90f52a274265273f2823de19",
+    "output": "18ff6b323de31c2384fbf97bd0af101aeb424994d9da863e1cd5b70d4dfa8a85"
+  },
+  "svg2webp|50.0x50.0|raw/angle-left.svg->flutter/assets/images/left.webp": {
+    "input": "1f58477a856cd18c37fb8ef39acd1b21154d9a84fb55e66bf12b2ca629c644eb",
+    "output": "6e4bda2cf2f850bf25df4c37d9845f3393f6dd8d8df8cf6ade0ef582cc870b45"
+  },
+  "svg2webp|50.0x50.0|raw/angle-right.svg->flutter/assets/images/right.webp": {
+    "input": "b9d541a14bfda04a5849ad4a0bede42460e595d820b7583b2ed68f7c917ffde4",
+    "output": "d1e032d969ca2ae996744e6bcf9d4eff5b5ebb90f84df103318c8e2c3ee046be"
+  },
+  "svg2webp|50.0x50.0|raw/angle-up.svg->flutter/assets/images/up.webp": {
+    "input": "f3376ea9189edb4fae904652c05bb3d793b76b8a492f218d1f5455e88d65b185",
+    "output": "57d885d3d358151979d9b3129e917dc2c552065414ff6a51b5762747722c3170"
+  }
+}

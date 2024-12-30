@@ -41,7 +41,6 @@ class RLock(object):
 			for byte_block in iter(lambda: f.read(4096), b""):
 				sha256_hash.update(byte_block)
 			return sha256_hash.hexdigest()
-		return None
 
 	def check_for_skippage(self, method: str, width: str, height: str, input: str, output: str) -> bool:
 		if not os.path.exists(input) or not os.path.exists(output):
