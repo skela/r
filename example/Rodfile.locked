@@ -77,15 +77,15 @@
   },
   "svg2png|50.0x50.0|raw/a.svg->web/a-blue.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
-    "output": "4c075531aa98bc7b9280460fed44a2b74e4d7b59fd91ff51ade3931bb2f6c428"
+    "output": "00bee44b9e28005d8aa5cba7a1f044dd0808b904c13ac586ba85af51478d5936"
   },
   "svg2png|50.0x50.0|raw/a.svg->web/a-green.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
-    "output": "22d44545610fed3b0dface1ad5f7f8c07fd97f41d390591788e1362962276e90"
+    "output": "2d58974c8e93cd55767ea9d4aad057ae9d373f1a0e7397c0665542076fff065a"
   },
   "svg2png|50.0x50.0|raw/a.svg->web/a-red.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",
-    "output": "a077e69374e9219aacc57bd5ad50af757b937aaab3c4babd4e00e44cc2abc9b1"
+    "output": "42a188a2e29292dad654d079c2994d5ec45a0633ac3cd7231cb76507a9b877fd"
   },
   "svg2png|50.0x50.0|raw/a.svg->web/a.png": {
     "input": "833adda1c94fbe5e97c00728a6fa85d943cd0af8a710f2671f855654d2729d06",

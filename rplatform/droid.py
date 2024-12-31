@@ -50,34 +50,46 @@ class RDroid(RBase):
 			os.system(cmd)
 
 	def svg2png(self, w_1x, h_1x, svg_file, out_name=None):
+		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, svg_file, out_name)
 			w = RUtils.number_from_object(w_1x)*density.scale
 			h = RUtils.number_from_object(h_1x)*density.scale
-			self.r.svg2png(w, h, out_path, svg_file)
+			r = self.r.svg2png(w, h, out_path, svg_file)
+			if r is not None:
+				rets.append(r)
+		return rets
 
 	def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
-		self.svg2png(w_1x, h_1x, svg_file, out_name)
+		return self.svg2png(w_1x, h_1x, svg_file, out_name)
 
 	def png2png(self, w_1x, h_1x, svg_file, out_name=None):
+		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, svg_file, out_name)
 			w = RUtils.number_from_object(w_1x)*density.scale
 			h = RUtils.number_from_object(h_1x)*density.scale
-			self.r.png2png(w, h, out_path, svg_file)
+			r = self.r.png2png(w, h, out_path, svg_file)
+			if r is not None:
+				rets.append(r)
+		return rets
 
 	def png2pngs(self, w_1x, h_1x, svg_file, out_name=None):
-		self.png2png(w_1x, h_1x, svg_file, out_name)
+		return self.png2png(w_1x, h_1x, svg_file, out_name)
 
 	def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
+		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, xcf_file, out_name)
 			w = RUtils.number_from_object(w_1x)*density.scale
 			h = RUtils.number_from_object(h_1x)*density.scale
-			self.r.xcf2png(w, h, out_path, xcf_file)
+			r = self.r.xcf2png(w, h, out_path, xcf_file)
+			if r is not None:
+				rets.append(r)
+		return rets
 
 	def xcf2pngs(self, w_1x, h_1x, svg_file, out_name=None):
-		self.xcf2png(w_1x, h_1x, svg_file, out_name)
+		return self.xcf2png(w_1x, h_1x, svg_file, out_name)
 
 	def svg2pdf(self, svg_file, out_name=None):
 		print("svg2pdf is not supported on android")

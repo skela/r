@@ -438,16 +438,17 @@ class R(object):
 			h = str(int(float(h)))
 
 		svg_path = os.path.abspath(in_file)
-		png_path = os.path.abspath(out_file)
+		webp_path = os.path.abspath(out_file)
 
-		if self.lock.check_for_skippage("svg2webp", width1x, height1x, svg_path, png_path):
+		if self.lock.check_for_skippage("svg2webp", width1x, height1x, svg_path, webp_path):
 			return None
 
-		out_file_png = png_path.replace(".webp", ".png")
+		out_file_png = webp_path.replace(".webp", "-temp.png")
 		self.svg2png(width1x, height1x, out_file_png, svg_path, update_lock=False)
-		self.convert(out_file_png, png_path)
+		self.convert(out_file_png, webp_path)
 		os.remove(out_file_png)
-		self.lock.update("svg2webp", width1x, height1x, svg_path, png_path)
+		self.lock.update("svg2webp", width1x, height1x, svg_path, webp_path)
+		return webp_path
 
 	def svg2webp(self, width, height, webp_file, svg_file, options=None):
 		return self.svg2webps(width, height, webp_file, svg_file)

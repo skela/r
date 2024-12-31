@@ -184,7 +184,7 @@ class RiOS(RBase):
 	def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
 		in_file = xcf_file
 		out_file = RiOS.out_path_from_out_name(self.path_ios_resources, xcf_file, out_name)
-		self.r.xcf2png(w_1x, h_1x, out_file, in_file)
+		return self.r.xcf2png(w_1x, h_1x, out_file, in_file)
 
 	def svg2pdf(self, svg_file, out_name=None):
 		output_folder = self.path_ios_resources
@@ -208,6 +208,6 @@ class RiOS(RBase):
 		width = RUtils.number_from_object(w)
 		height = RUtils.number_from_object(h)
 		svg_centred_size_1x = [width, height]
-		self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
+		return self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
 
 
