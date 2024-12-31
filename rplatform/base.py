@@ -148,9 +148,11 @@ class RBase(object):
 					clr_to = clrs[1]
 					for img in ret:
 						self.r.convert_color(img, img, clr_from, clr_to)
+						self.r.lock.update_output_hash(img)
 				elif action.startswith("-"):
 					for img in ret:
 						self.r.convert(img, img, action)
+						self.r.lock.update_output_hash(img)
 
 	@staticmethod
 	def create_run_file_header():

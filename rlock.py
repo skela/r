@@ -74,3 +74,16 @@ class RLock(object):
 			d = {}
 		d[key] = {"input": input_hash, "output": output_hash}
 		self._save_lock_file(d)
+
+	def update_output_hash(self,output:str):
+		cwd = Path(os.getcwd())
+		rel_output = Path(output).relative_to(cwd)
+
+		d = self._load_lock_file()
+		if d is None:
+			return
+		for k in d.keys():
+			if k.endswith(f"->{rel_output}"):
+				d[k]["output"] = self._create_hash(output)
+				self._save_lock_file(d)
+				return

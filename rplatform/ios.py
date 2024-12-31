@@ -5,6 +5,14 @@ import shutil
 from r import R, RUtils
 from rplatform.base import RBase
 
+class ImageSetUnit(object):
+
+	def __init__(self,name:str,scale:str,folder:str,desired_name:str,path:str):
+		self.name = name
+		self.scale = scale
+		self.folder = folder
+		self.desired_name = desired_name
+		self.path = path
 
 class RiOS(RBase):
 
@@ -66,7 +74,7 @@ class RiOS(RBase):
 			img_assets = dr
 		return img_assets
 
-	def image_set_unit_from_path(self,img_path,xcassets):
+	def image_set_unit_from_path(self,img_path,xcassets) -> ImageSetUnit:
 		img_name = os.path.splitext(os.path.basename(img_path))[0]
 		img_ext = os.path.splitext(os.path.basename(img_path))[1]
 		img_scale = "1x"
@@ -76,15 +84,15 @@ class RiOS(RBase):
 				img_name = img_name[:-3]
 				img_scale = at[1:]
 				break
-		img = ImageSetUnit()
-		img.path = img_path
-		img.name = img_name
-		img.scale = img_scale
-		img.folder = os.path.join(xcassets, img_name + '.imageset')
-		img.desired_name = img_name + "-" + img_scale + img_ext
-		return img
+		return ImageSetUnit(
+			name=img_name,
+			scale=img_scale,
+			folder=os.path.join(xcassets, img_name + '.imageset'),
+			desired_name=img_name + "-" + img_scale + img_ext,
+			path=img_path
+		)
 
-	def image_set_folder_path(self,img_paths,xcassets):
+	def image_set_folder_path(self,img_paths,xcassets) -> str:
 		img = self.image_set_unit_from_path(img_paths[0],xcassets)
 		return img.folder
 
@@ -191,7 +199,7 @@ class RiOS(RBase):
 		#self.r.svg2appiconset(svg_file, default_xcassets)
 		xcassets = self.paths_ios_assets
 		if xcassets is not None:
-			for xc in xcassets:				
+			for xc in xcassets:
 				self.r.svg2appiconset(svg_file, os.path.abspath(xc), device=device)
 				#if xc != default_xcassets:
 				#self.r.svg2appiconset(svg_file, xc)
@@ -203,11 +211,3 @@ class RiOS(RBase):
 		self.r.svg2launch_image(svg_bg, svg_centred, svg_centred_size_1x, self.path_ios_resources, for_iphone=True, for_ipad=True)
 
 
-class ImageSetUnit(object):
-
-	def __init__(self):
-		self.name = None
-		self.scale = None
-		self.folder = None
-		self.desired_name = None
-		self.path = None
