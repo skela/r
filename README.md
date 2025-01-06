@@ -42,7 +42,7 @@ More info in help:
 
 # Using docker
 
-You can also use docker so you don't have to install anything.
+You can also use docker so you don't have to install anything, here's an example of how to do that via python:
 
 ```
 image = "skela/rod:latest"
