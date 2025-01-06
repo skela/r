@@ -132,7 +132,9 @@ class RConfig(object):
 			if RConfig.is_mac():
 				path = "magick"
 			if RConfig.is_linux():
-				path = "/usr/bin/magick"
+				path = "/usr/bin/convert"
+				if not os.path.exists(path):
+					path = "/usr/bin/magick"
 			if RConfig.is_windows():
 				exit("Unsupported operating system, please type format c: in the command prompt")
 		else:
@@ -623,17 +625,13 @@ class R(object):
 		if for_iphone:
 			ics = [
 				(320, 568, "portrait", "iphone", {
-					"extent": "full-screen",
-					"minimum-system-version": "7.0",
-					"subtype": "retina4"
+					"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"
 				}),
 				(320, 480, "portrait", "iphone", {
-					"extent": "full-screen",
-					"minimum-system-version": "7.0"
+					"extent": "full-screen", "minimum-system-version": "7.0"
 				}),
 				(320, 568, "portrait", "iphone", {
-					"extent": "full-screen",
-					"subtype": "retina4"
+					"extent": "full-screen", "subtype": "retina4"
 				}),
 				(320, 480, "portrait", "iphone", {
 					"extent": "full-screen"
@@ -642,17 +640,17 @@ class R(object):
 			icon_sizes.extend(ics)
 
 		if for_ipad:
-			icsp = [(768, 1024, "portrait", "ipad", {
-				"extent": "full-screen",
-				"minimum-system-version": "7.0"
-			}), (1024, 768, "landscape", "ipad", {
-				"extent": "full-screen",
-				"minimum-system-version": "7.0"
-			}), (768, 1004, "portrait", "ipad", {
-				"extent": "to-status-bar"
-			}), (1024, 748, "landscape", "ipad", {
-				"extent": "to-status-bar"
-			})]
+			icsp = [
+				(768, 1024, "portrait", "ipad", {
+					"extent": "full-screen", "minimum-system-version": "7.0"
+				}), (1024, 768, "landscape", "ipad", {
+					"extent": "full-screen", "minimum-system-version": "7.0"
+				}), (768, 1004, "portrait", "ipad", {
+					"extent": "to-status-bar"
+				}), (1024, 748, "landscape", "ipad", {
+					"extent": "to-status-bar"
+				})
+			]
 			icon_sizes.extend(icsp)
 
 		tmp = os.path.join(os.getcwd(), ".tmpROD")
@@ -736,29 +734,25 @@ class R(object):
 
 	# Note this is not that useful, you may want to make use of the svg2launch_image function above.
 	def svg2launchimage(self, launch_svg, destination):
-		icon_sizes = [(320, 568, "portrait", "iphone", {
-			"extent": "full-screen",
-			"minimum-system-version": "7.0",
-			"subtype": "retina4"
-		}), (320, 480, "portrait", "iphone", {
-			"extent": "full-screen",
-			"minimum-system-version": "7.0"
-		}), (320, 568, "portrait", "iphone", {
-			"extent": "full-screen",
-			"subtype": "retina4"
-		}), (320, 480, "portrait", "iphone", {
-			"extent": "full-screen"
-		}), (768, 1024, "portrait", "ipad", {
-			"extent": "full-screen",
-			"minimum-system-version": "7.0"
-		}), (1024, 768, "landscape", "ipad", {
-			"extent": "full-screen",
-			"minimum-system-version": "7.0"
-		}), (768, 1004, "portrait", "ipad", {
-			"extent": "to-status-bar"
-		}), (1024, 748, "landscape", "ipad", {
-			"extent": "to-status-bar"
-		})]
+		icon_sizes = [
+			(320, 568, "portrait", "iphone", {
+				"extent": "full-screen", "minimum-system-version": "7.0", "subtype": "retina4"
+			}), (320, 480, "portrait", "iphone", {
+				"extent": "full-screen", "minimum-system-version": "7.0"
+			}), (320, 568, "portrait", "iphone", {
+				"extent": "full-screen", "subtype": "retina4"
+			}), (320, 480, "portrait", "iphone", {
+				"extent": "full-screen"
+			}), (768, 1024, "portrait", "ipad", {
+				"extent": "full-screen", "minimum-system-version": "7.0"
+			}), (1024, 768, "landscape", "ipad", {
+				"extent": "full-screen", "minimum-system-version": "7.0"
+			}), (768, 1004, "portrait", "ipad", {
+				"extent": "to-status-bar"
+			}), (1024, 748, "landscape", "ipad", {
+				"extent": "to-status-bar"
+			})
+		]
 
 		tmp = os.path.join(os.getcwd(), ".tmpROD")
 		if not os.path.exists(tmp):
