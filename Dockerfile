@@ -1,49 +1,53 @@
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+
+ENV LIBRARY_PATH=/lib:/usr/lib
+ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python
+
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+	--mount=type=bind,source=uv.lock,target=uv.lock \
+	--mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+	uv sync --frozen --no-install-project --no-dev
+
+RUN uv venv --relocatable
+
+ADD pyproject.toml /app
+ADD uv.lock /app
+ADD .python-version /app
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+	uv sync --frozen --no-dev
+
 FROM ubuntu:24.10
+
+COPY --from=builder --chown=ubuntup:ubuntu /app /app
+COPY --chown=ubuntu:ubuntu --from=builder /app/.venv /app/.venv
+COPY --chown=ubuntu:ubuntu --from=builder /opt/uv/python /opt/uv/python
+
+ENV PATH="/app/.venv/bin:$PATH"
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV TZ=Europe/London
 
 RUN apt update --yes
-RUN apt install --yes curl wget unzip lcov sed git bash xz-utils sudo python3 python3-pip python3-venv build-essential zip imagemagick inkscape gimp
+RUN apt install --yes curl wget unzip lcov sed git bash xz-utils sudo build-essential zip imagemagick inkscape gimp
 RUN rm -rf /var/lib/{apt,dpkg,cache,log}
 
-WORKDIR /rod
+COPY rplatform/ /app/rplatform
+COPY *.py /app/
+COPY setup.json /app/
 
-ADD https://astral.sh/uv/0.4.18/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-ENV PATH="/root/.cargo/bin/:$PATH"
-
-COPY .python-version .
-COPY uv.lock .
-COPY pyproject.toml .
-RUN uv sync
-
-COPY rplatform/ /rod/rplatform
-
-COPY *.py /rod/
-
-COPY setup.json /rod/
-
-RUN echo '#!/usr/bin/env bash\n/rod/.venv/bin/python3 /rod/rod.py "$@"' >> /rod/rod
-
-RUN chown -R ubuntu: /rod
-
+RUN chown -R ubuntu: /app
 RUN mkdir /res
 RUN chown ubuntu: /res
+RUN chmod +x /app/rod.py
+RUN mv /app/rod.py /app/rod
+RUN ln -s /app/rod /usr/local/bin/rod
 
 USER ubuntu
 
-RUN chmod +x /rod/rod
-
-ENV PATH="/rod/:${PATH}"
+ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /res
 
-# ARG USER_ID
-# ARG GROUP_ID
-
-# RUN addgroup --gid $GROUP_ID user
-# RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
-
-
-# USER user
