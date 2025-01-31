@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import argparse
 import xmltodict
@@ -24,15 +26,17 @@ class RodFolderReference(object):
 	def __str__(self):
 		return "%s -> %s" % (self.path, self.name)
 
+
 class RodDefinitions(object):
 
-	def __init__(self,overrides:dict,lines:list[str]):
+	def __init__(self, overrides: dict, lines: list[str]):
 		self.overrides = overrides
 		self.lines = lines
 
+
 class RodSettings(object):
 
-	def __init__(self,defs:RodDefinitions,xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj):
+	def __init__(self, defs: RodDefinitions, xcode_projects, img_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj):
 		self.defs = defs
 		self.xcode_projects = xcode_projects
 		self.img_folder = img_folder
@@ -43,6 +47,7 @@ class RodSettings(object):
 		self.densities = densities
 		self.folders = folders
 		self.should_update_xcode_proj = should_update_xcode_proj
+
 
 class Rod(object):
 
@@ -132,9 +137,9 @@ class Rod(object):
 		ri.set_ios_assets(output_assets_folders)
 		return ri
 
-	def regenerate_resources(self, settings:RodSettings):
-		r = self.r_for_platform(settings.img_folder,settings.assets_folders,settings.platform,settings.densities)
-		r.run_lines(settings.defs.lines,settings.input_folder)
+	def regenerate_resources(self, settings: RodSettings):
+		r = self.r_for_platform(settings.img_folder, settings.assets_folders, settings.platform, settings.densities)
+		r.run_lines(settings.defs.lines, settings.input_folder)
 
 	def generate_resources(self, rod_lines, input_folder, output_folder, output_assets_folders, platform="ios", densities="xhdpi"):
 		r = self.r_for_platform(output_folder, output_assets_folders, platform, densities)
@@ -423,12 +428,12 @@ class Rod(object):
 	def read_rod_definitions(rod_file) -> list[RodDefinitions]:
 		lines = Rod.read_rod_lines(rod_file)
 		ls = []
-		defn = RodDefinitions(overrides={},lines=[])
+		defn = RodDefinitions(overrides={}, lines=[])
 		for line in lines:
 			if line.startswith("###"):
 				if len(defn.lines) > 0:
 					ls.append(defn)
-					defn = RodDefinitions(overrides={},lines=[])
+					defn = RodDefinitions(overrides={}, lines=[])
 				l = line[3:len(line)]
 				l = l.strip()
 				parts = l.split("=")
@@ -445,7 +450,7 @@ class Rod(object):
 		return ls
 
 	@staticmethod
-	def read_rod_folder_references(lines:list[str]) -> list[RodFolderReference]:
+	def read_rod_folder_references(lines: list[str]) -> list[RodFolderReference]:
 		folders = []
 		for line in lines:
 			if line.startswith("resources_folder"):
@@ -541,7 +546,7 @@ class Rod(object):
 			print("> convert maps to: %s" % r.path_convert)
 			print("")
 
-		settings : list[RodSettings] = []
+		settings: list[RodSettings] = []
 
 		ds = Rod.read_rod_definitions(self.rodfile)
 
@@ -601,8 +606,10 @@ class Rod(object):
 						print("> Should update xcode projects: No")
 				else:
 					if platform == "ios" and len(cs_projects) == 0:
-						print("Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" %
-								folder_path)
+						print(
+							"Failed to locate xcode project - i.e. Missing .xcodeproj file in folder %s\n(So Xcodeproject will not be updated, you have to manually add/remove image resources)" %
+							folder_path
+						)
 				print("")
 
 				if len(cs_projects) > 0:
@@ -614,7 +621,7 @@ class Rod(object):
 					print("> folder references: ")
 					for folder in folders:
 						print("  %s" % folder)
-			settings.append(RodSettings(defs,xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj))
+			settings.append(RodSettings(defs, xc_projects, output_folder, input_folder, assets_folders, cs_projects, platform, densities, folders, should_update_xcode_proj))
 		return settings
 
 

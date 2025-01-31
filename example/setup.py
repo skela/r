@@ -11,6 +11,7 @@ volumes = [
 	f'-v {os.path.abspath("web/")}:/res/web/',
 ]
 volumes = " ".join(map(lambda x: x, volumes))
-command_run = subprocess.call(f"docker run -i {volumes} {image} /rod/rod -u -f Rodfile", stderr=subprocess.STDOUT, shell=True)
+cmd = f"docker run -i {volumes} {image} rod -u"
+command_run = subprocess.call(cmd, stderr=subprocess.STDOUT, shell=True)
 if command_run != 0:
 	exit("Failed to generate images")
