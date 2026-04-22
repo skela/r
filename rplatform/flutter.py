@@ -51,13 +51,13 @@ class RFlutter(RBase):
 				rets.append(r)
 		return rets
 
-	def svg2webp(self, w_1x, h_1x, svg_file, out_name=None):
+	def svg2webp(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
 		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, svg_file, out_name)
 			w = RUtils.number_from_object(w_1x) * density.scale
 			h = RUtils.number_from_object(h_1x) * density.scale
-			r = self.r.svg2webp(w, h, out_path, svg_file)
+			r = self.r.svg2webp(w, h, out_path, svg_file, quality=quality)
 			if r is not None:
 				rets.append(r)
 		return rets
@@ -65,36 +65,36 @@ class RFlutter(RBase):
 	def svg2pngs(self, w_1x, h_1x, svg_file, out_name=None):
 		return self.svg2png(w_1x, h_1x, svg_file, out_name)
 
-	def svg2webps(self, w_1x, h_1x, svg_file, out_name=None):
-		return self.svg2webp(w_1x, h_1x, svg_file, out_name)
+	def svg2webps(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
+		return self.svg2webp(w_1x, h_1x, svg_file, out_name, quality=quality)
 
-	def png2png(self, w_1x, h_1x, svg_file, out_name=None):
+	def png2png(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
 		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, svg_file, out_name)
 			w = RUtils.number_from_object(w_1x) * density.scale
 			h = RUtils.number_from_object(h_1x) * density.scale
-			r = self.r.png2png(w, h, out_path, svg_file)
+			r = self.r.png2png(w, h, out_path, svg_file, quality=quality)
 			if r is not None:
 				rets.append(r)
 		return rets
 
-	def png2pngs(self, w_1x, h_1x, svg_file, out_name=None):
-		return self.png2png(w_1x, h_1x, svg_file, out_name)
+	def png2pngs(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
+		return self.png2png(w_1x, h_1x, svg_file, out_name, quality=quality)
 
-	def webp2webp(self, w_1x, h_1x, svg_file, out_name=None):
+	def webp2webp(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
 		rets = []
 		for density in self.densities:
 			out_path = self.out_path_from_out_name(density, svg_file, out_name)
 			w = RUtils.number_from_object(w_1x) * density.scale
 			h = RUtils.number_from_object(h_1x) * density.scale
-			r = self.r.webp2webp(w, h, out_path, svg_file)
+			r = self.r.webp2webp(w, h, out_path, svg_file, quality=quality)
 			if r is not None:
 				rets.append(r)
 		return rets
 
-	def webp2webps(self, w_1x, h_1x, svg_file, out_name=None):
-		return self.webp2webp(w_1x, h_1x, svg_file, out_name)
+	def webp2webps(self, w_1x, h_1x, svg_file, out_name=None, quality=None):
+		return self.webp2webp(w_1x, h_1x, svg_file, out_name, quality=quality)
 
 	def xcf2png(self, w_1x, h_1x, xcf_file, out_name=None):
 		rets = []

@@ -26,11 +26,13 @@ class RLock(object):
 		f.write(js)
 		f.close()
 
-	def _key(self, method: str, width: str, height: str, input: str, output: str) -> str:
+	def _key(self, method: str, width: str, height: str, input: str, output: str, quality: Optional[int] = None) -> str:
 		cwd = Path(os.getcwd())
 		rel_input = Path(input).relative_to(cwd)
 		rel_output = Path(output).relative_to(cwd)
 		key = f"{method}|{width}x{height}|{rel_input}->{rel_output}"
+		if quality is not None:
+			key += f"|q={quality}"
 		return key
 
 	def _create_hash(self, file_path: str) -> Optional[str]:
@@ -42,11 +44,11 @@ class RLock(object):
 				sha256_hash.update(byte_block)
 			return sha256_hash.hexdigest()
 
-	def check_for_skippage(self, method: str, width: str, height: str, input: str, output: str) -> bool:
+	def check_for_skippage(self, method: str, width: str, height: str, input: str, output: str, quality: Optional[int] = None) -> bool:
 		if not os.path.exists(input) or not os.path.exists(output):
 			return False
 
-		key = self._key(method, width, height, input, output)
+		key = self._key(method, width, height, input, output, quality)
 
 		d = self._load_lock_file()
 		if d is None:
@@ -64,8 +66,8 @@ class RLock(object):
 
 		return True
 
-	def update(self, method: str, width: str, height: str, input: str, output: str):
-		key = self._key(method, width, height, input, output)
+	def update(self, method: str, width: str, height: str, input: str, output: str, quality: Optional[int] = None):
+		key = self._key(method, width, height, input, output, quality)
 		input_hash = self._create_hash(input)
 		output_hash = self._create_hash(output)
 
