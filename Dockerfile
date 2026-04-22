@@ -19,7 +19,7 @@ ADD .python-version /app
 RUN --mount=type=cache,target=/root/.cache/uv \
 	uv sync --frozen --no-dev
 
-FROM ubuntu:24.10
+FROM ubuntu:25.10
 
 COPY --from=builder --chown=ubuntup:ubuntu /app /app
 COPY --chown=ubuntu:ubuntu --from=builder /app/.venv /app/.venv
