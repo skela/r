@@ -183,6 +183,14 @@ class R(object):
 	def has_tool(name) -> bool:
 		return which(name) is not None
 
+	@staticmethod
+	def _quality_flags(quality) -> str:
+		if quality is None:
+			return ""
+		if quality == 100:
+			return " -quality 100 -define webp:lossless=true"
+		return f" -quality {quality}"
+
 	def check_for_inkscape(self):
 		if "/" in self.path_inkscape:
 			if os.path.exists(self.path_inkscape) is False:
@@ -308,7 +316,7 @@ class R(object):
 
 		self.lock.update("xcf2pdf", width, height, in_file, out_file)
 
-	def webp2webp(self, width, height, out_file, in_file):
+	def webp2webp(self, width, height, out_file, in_file, quality=None):
 		w = width
 		h = height
 
@@ -320,19 +328,20 @@ class R(object):
 		in_file = os.path.abspath(in_file)
 		out_file = os.path.abspath(out_file)
 
-		if self.lock.check_for_skippage("webp2webp", width, height, in_file, out_file):
+		if self.lock.check_for_skippage("webp2webp", width, height, in_file, out_file, quality):
 			return None
 
+		q_flags = R._quality_flags(quality)
 		cmd = self.path_convert + ' "%s"' % in_file
-		cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
+		cmd = '%s -scale %sx%s%s "%s"' % (cmd, w, h, q_flags, out_file)
 
 		os.system(cmd)
 
-		self.lock.update("webp2webp", width, height, in_file, out_file)
+		self.lock.update("webp2webp", width, height, in_file, out_file, quality)
 
 		return out_file
 
-	def png2png(self, width, height, out_file, in_file):
+	def png2png(self, width, height, out_file, in_file, quality=None):
 		w = width
 		h = height
 
@@ -344,15 +353,16 @@ class R(object):
 		in_file = os.path.abspath(in_file)
 		out_file = os.path.abspath(out_file)
 
-		if self.lock.check_for_skippage("png2png", width, height, in_file, out_file):
+		if self.lock.check_for_skippage("png2png", width, height, in_file, out_file, quality):
 			return None
 
+		q_flags = R._quality_flags(quality)
 		cmd = self.path_convert + ' "%s"' % in_file
-		cmd = '%s -scale %sx%s "%s"' % (cmd, w, h, out_file)
+		cmd = '%s -scale %sx%s%s "%s"' % (cmd, w, h, q_flags, out_file)
 
 		os.system(cmd)
 
-		self.lock.update("png2png", width, height, in_file, out_file)
+		self.lock.update("png2png", width, height, in_file, out_file, quality)
 
 		return out_file
 
@@ -425,7 +435,7 @@ class R(object):
 	def svg2pngs(self, width1x, height1x, out_file, in_file):
 		return self.svg2png_r(width1x, height1x, out_file, in_file)
 
-	def svg2webps(self, width1x, height1x, out_file, in_file):
+	def svg2webps(self, width1x, height1x, out_file, in_file, quality=None):
 
 		w = width1x
 		h = height1x
@@ -442,18 +452,19 @@ class R(object):
 		svg_path = os.path.abspath(in_file)
 		webp_path = os.path.abspath(out_file)
 
-		if self.lock.check_for_skippage("svg2webp", width1x, height1x, svg_path, webp_path):
+		if self.lock.check_for_skippage("svg2webp", width1x, height1x, svg_path, webp_path, quality):
 			return None
 
+		q_flags = R._quality_flags(quality).strip() or None
 		out_file_png = webp_path.replace(".webp", "-temp.png")
 		self.svg2png(width1x, height1x, out_file_png, svg_path, update_lock=False)
-		self.convert(out_file_png, webp_path)
+		self.convert(out_file_png, webp_path, q_flags)
 		os.remove(out_file_png)
-		self.lock.update("svg2webp", width1x, height1x, svg_path, webp_path)
+		self.lock.update("svg2webp", width1x, height1x, svg_path, webp_path, quality)
 		return webp_path
 
-	def svg2webp(self, width, height, webp_file, svg_file, options=None):
-		return self.svg2webps(width, height, webp_file, svg_file)
+	def svg2webp(self, width, height, webp_file, svg_file, options=None, quality=None):
+		return self.svg2webps(width, height, webp_file, svg_file, quality)
 
 	def png2pngs_r(self, w1x, h1x, out_file, in_file):
 		width1x = RUtils.number_from_object(w1x)

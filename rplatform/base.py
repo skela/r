@@ -21,6 +21,7 @@ class RBase(object):
 		svg = None
 		png = None
 		action = None
+		quality = None
 
 		if not line.startswith("#"):
 
@@ -48,7 +49,15 @@ class RBase(object):
 						succeeded = True
 					if len(comps) > 0:
 						png = comps[0]
-		return succeeded, method, w, h, svg, png, action
+						comps = comps[1:len(comps)]
+					for extra in comps:
+						extra = extra.strip()
+						if extra.startswith("q="):
+							try:
+								quality = int(extra[2:])
+							except ValueError:
+								pass
+		return succeeded, method, w, h, svg, png, action, quality
 
 	@staticmethod
 	def script_for_line(line):
@@ -86,7 +95,7 @@ class RBase(object):
 			if script is not None:
 				os.system(script)
 
-			(succeeded, method, w, h, sfile, png, action) = RBase.components_for_line(line)
+			(succeeded, method, w, h, sfile, png, action, quality) = RBase.components_for_line(line)
 			if not succeeded:
 				continue
 			if sfile is None:
@@ -102,12 +111,12 @@ class RBase(object):
 				if sfile.endswith(".xcf"):
 					self.xcf2pngs(w, h, sfile, png)
 				elif sfile.endswith(".png") or sfile.endswith(".jpg") or sfile.endswith(".jpeg"):
-					self.png2pngs(w, h, sfile, png)
+					self.png2pngs(w, h, sfile, png, quality=quality)
 				elif sfile.endswith(".webp"):
-					self.webp2webps(w, h, sfile, png)
+					self.webp2webps(w, h, sfile, png, quality=quality)
 				else:
 					if png.endswith(".webp"):
-						ret = self.svg2webps(w, h, sfile, png)
+						ret = self.svg2webps(w, h, sfile, png, quality=quality)
 					else:
 						ret = self.svg2pngs(w, h, sfile, png)
 			elif method == "asset":
